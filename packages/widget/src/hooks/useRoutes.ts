@@ -1,0 +1,454 @@
+import { useAccount } from '@leapswap/wallet-management'
+import type { Route } from '@leapswap/widget-sdk'
+import { ChainType, LeapSwapErrorCode } from '@leapswap/widget-sdk'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { parseUnits } from 'viem'
+import { useConfig } from 'wagmi'
+import { getWalletClient } from 'wagmi/actions'
+import { getCrossChainQuote } from '../cross/crossChainQuote.js'
+import { useWidgetConfig } from '../providers/WidgetProvider/WidgetProvider.js'
+import { LeapSwapService } from '../services/LeapSwapService.js'
+import { useFieldValues } from '../stores/form/useFieldValues.js'
+import { useSetExecutableRoute } from '../stores/routes/useSetExecutableRoute.js'
+import { useSettings } from '../stores/settings/useSettings.js'
+import { defaultSlippage } from '../stores/settings/useSettingsStore.js'
+import { useServerErrorStore } from '../stores/useServerErrorStore.js'
+import { WidgetEvent } from '../types/events.js'
+import { getChainTypeFromAddress } from '../utils/chainType.js'
+import { LeapSwapLogo } from '../icons/leapswapLogo.js'
+import { useChain } from './useChain.js'
+import { useDebouncedWatch } from './useDebouncedWatch.js'
+import { useGasPrice } from './useGasPrice.js'
+import { useGasRefuel } from './useGasRefuel.js'
+import { useIsBatchingSupported } from './useIsBatchingSupported.js'
+import { useSwapOnly } from './useSwapOnly.js'
+import { useToken } from './useToken.js'
+import { useWidgetEvents } from './useWidgetEvents.js'
+
+const refetchTime = 60_000
+
+interface RoutesProps {
+  observableRoute?: Route
+}
+
+export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
+  const wagmiConfig = useConfig()
+  const { wallet: solanaWallet } = useWallet()
+
+  const { subvariant, sdkConfig, fee, feeConfig, referrer } = useWidgetConfig()
+  const setExecutableRoute = useSetExecutableRoute()
+  const queryClient = useQueryClient()
+  const emitter = useWidgetEvents()
+  const swapOnly = useSwapOnly()
+  const {
+    disabledBridges,
+    disabledExchanges,
+    enabledBridges,
+    enabledExchanges,
+    enabledAutoRefuel,
+    routePriority,
+    slippage,
+  } = useSettings([
+    'disabledBridges',
+    'disabledExchanges',
+    'enabledBridges',
+    'enabledExchanges',
+    'enabledAutoRefuel',
+    'routePriority',
+    'slippage',
+  ])
+  const [fromTokenAmount] = useDebouncedWatch(500, 'fromAmount')
+  const [
+    fromChainId,
+    fromTokenAddress,
+    _toAddress,
+    toTokenAmount,
+    toChainId,
+    toTokenAddress,
+    contractCalls,
+  ] = useFieldValues(
+    'fromChain',
+    'fromToken',
+    'toAddress',
+    'toAmount',
+    'toChain',
+    'toToken',
+    'contractCalls'
+  )
+  const { token: fromToken } = useToken(fromChainId, fromTokenAddress)
+  const { token: toToken } = useToken(toChainId, toTokenAddress)
+  const { chain: fromChain } = useChain(fromChainId)
+  const { chain: toChain } = useChain(toChainId)
+  const { enabled: enabledRefuel, fromAmount: gasRecommendationFromAmount } =
+    useGasRefuel()
+
+  const { gasPrice } = useGasPrice(fromChainId?.toString() || '')
+  const { account } = useAccount({ chainType: fromChain?.chainType })
+  const { isBatchingSupported, isBatchingSupportedLoading } =
+    useIsBatchingSupported(fromChain, account.address)
+
+  const hasAmount = Number(fromTokenAmount) > 0 || Number(toTokenAmount) > 0
+
+  const contractCallQuoteEnabled: boolean =
+    subvariant === 'custom' ? Boolean(contractCalls && account.address) : true
+
+  const toAddress =
+    fromChainId === toChainId ||
+      (fromChain?.chainType === 'EVM' && toChain?.chainType === 'EVM')
+      ? account.address
+      : _toAddress
+  // When bridging between ecosystems, we need to ensure toAddress is set and has the same chainType as toChain
+  // If toAddress is set, it must have the same chainType as toChain
+  const hasToAddressAndChainTypeSatisfied: boolean =
+    !!toChain &&
+    !!toAddress &&
+    getChainTypeFromAddress(toAddress) === toChain.chainType
+  // We only need to check if toAddress is set
+  const isToAddressSatisfied = toAddress
+    ? hasToAddressAndChainTypeSatisfied
+    : true
+
+  const isEnabled =
+    Boolean(Number(fromChain?.id)) &&
+    Boolean(Number(toChain?.id)) &&
+    Boolean(fromToken?.address) &&
+    Boolean(toToken?.address) &&
+    !Number.isNaN(slippage) &&
+    hasAmount &&
+    isToAddressSatisfied &&
+    contractCallQuoteEnabled &&
+    !isBatchingSupportedLoading
+
+  const queryKey = [
+    'routes',
+    account.address,
+    fromChain?.id as number,
+    fromToken?.address as string,
+    fromTokenAmount,
+    toAddress,
+    toChain?.id as number,
+    toToken?.address as string,
+    toTokenAmount,
+    contractCalls,
+    slippage,
+    swapOnly,
+    disabledBridges,
+    disabledExchanges,
+    enabledBridges,
+    enabledExchanges,
+    routePriority,
+    subvariant,
+    sdkConfig?.routeOptions?.allowSwitchChain,
+    enabledRefuel && enabledAutoRefuel,
+    gasRecommendationFromAmount,
+    feeConfig?.fee || fee,
+    !!isBatchingSupported,
+    observableRoute?.id,
+  ] as const
+
+  const { data, isLoading, isFetching, isFetched, dataUpdatedAt, refetch } =
+    useQuery({
+      queryKey,
+      queryFn: async ({
+        queryKey: [
+          _,
+          fromAddress,
+          fromChainId,
+          fromTokenAddress,
+          fromTokenAmount,
+          toAddress,
+          toChainId,
+          toTokenAddress,
+          toTokenAmount,
+          contractCalls,
+          slippage = defaultSlippage,
+          swapOnly,
+          disabledBridges,
+          disabledExchanges,
+          allowedBridges,
+          allowedExchanges,
+          routePriority,
+          subvariant,
+          allowSwitchChain,
+          enabledRefuel,
+          gasRecommendationFromAmount,
+          fee,
+          isBatchingSupported,
+          _observableRouteId,
+        ],
+        signal,
+      }) => {
+        try {
+          useServerErrorStore.getState().setError(null)
+          const fromAmount = parseUnits(fromTokenAmount, fromToken!.decimals)
+          const formattedSlippage = slippage ? slippage : '1' // Default slippage 1%
+
+          let quoteResult: any // Initialize quoteResult
+
+          // Check if it's a cross-chain swap
+          if (fromChainId !== toChainId) {
+            // Use DebridgeService for cross-chain quotes
+            if (fromToken && toToken) {
+              // Construct Asset objects for DebridgeService
+              const fromMsg = {
+                address: fromTokenAddress,
+                symbol: fromToken.symbol,
+                decimals: fromToken.decimals,
+                name: fromToken.name,
+                icon: fromToken.logoURI,
+                chainId: fromChainId,
+                isNative: fromToken.isNative,
+              }
+              const toMsg = {
+                address: toTokenAddress,
+                symbol: toToken.symbol,
+                decimals: toToken.decimals,
+                name: toToken.name,
+                icon: toToken.logoURI,
+                chainId: toChainId,
+                isNative: toToken.isNative,
+              }
+
+              // Get appropriate wallet client based on chain type
+              let walletClient = undefined
+              if (fromChain?.chainType === ChainType.EVM) {
+                try {
+                  walletClient = await getWalletClient(wagmiConfig)
+                } catch (error) {
+                  console.warn(
+                    'Failed to get wallet client for EVM chain:',
+                    error
+                  )
+                  // Continue without walletClient for non-EVM chains
+                }
+              } else if (fromChain?.chainType === ChainType.SVM) {
+                // For Solana chains, use the Solana wallet adapter
+                walletClient = solanaWallet?.adapter
+              }
+              quoteResult = await getCrossChainQuote({
+                feeBps: 10,
+                fromMsg,
+                toMsg,
+                inAmount: fromAmount.toString(),
+                slippage_tolerance: formattedSlippage,
+                account: account?.address || '',
+                walletClient,
+                recipient: toAddress || '',
+              })
+
+              // quoteResult = await DebridgeService.swapUThenCross({
+              //   fromMsg: fromMsg,
+              //   toMsg: toMsg,
+              //   inAmount: fromAmount.toString(),
+              //   slippage_tolerance: formattedSlippage, // Debridge might use a different format/unit
+              //   account: account?.address || '',
+              //   receiver: toAddress, // Assuming receiver is the same as account for now
+              // })
+              // Add a flag or modify structure to indicate it's a Debridge route
+              if (quoteResult) {
+                if (quoteResult.error) {
+                  throw new Error(quoteResult.error)
+                }
+                if (quoteResult.data) {
+                  quoteResult.isBridge = true
+                }
+              }
+            } else {
+              console.warn(
+                'Cannot get Debridge quote: Missing account address, fromToken, or toToken.'
+              )
+              quoteResult = null // Or handle error appropriately
+            }
+          } else {
+            // Use LeapSwapService for same-chain swaps
+            if (account.address) {
+              quoteResult = await LeapSwapService.getSwapQuote({
+                chain: fromChainId.toString(),
+                inTokenSymbol: fromToken?.symbol || '',
+                inTokenAddress: fromTokenAddress,
+                outTokenSymbol: toToken?.symbol || '',
+                outTokenAddress: toTokenAddress,
+                amount: fromAmount.toString(),
+                account: account.address,
+                slippage: formattedSlippage, // LeapSwap expects slippage like '100' for 1%
+                gasPrice: gasPrice || '10', // Consider chain-specific defaults
+                enabledDexIds: fromChainId === 1151111081099710 ? '6' : '', // Example for Solana specific dex
+                referrer: referrer?.address || '',
+                referrerFee: referrer?.fee || '',
+              })
+            } else {
+              // Use getQuote if account is not connected (view mode)
+              quoteResult = await LeapSwapService.getQuote({
+                chain: fromChainId.toString(),
+                inTokenSymbol: fromToken?.symbol || '',
+                inTokenAddress: fromTokenAddress,
+                outTokenSymbol: toToken?.symbol || '',
+                outTokenAddress: toTokenAddress,
+                amount: fromAmount.toString(),
+                slippage: formattedSlippage, // LeapSwap expects slippage like '100' for 1%
+                gasPrice: gasPrice || '10', // Consider chain-specific defaults
+                enabledDexIds: fromChainId === 1151111081099710 ? '6' : '', // Example for Solana specific dex
+              })
+            }
+            // Ensure the structure is consistent or add a flag
+            if (quoteResult) {
+              quoteResult.isBridge = false
+            }
+          }
+          if (!quoteResult) {
+            return []
+          }
+          // biome-ignore lint/complexity/useOptionalChain: <explanation>
+          const data = (quoteResult && quoteResult.data) || {}
+          // minOutAmount calculation is now handled within DebridgeService or LeapSwapService
+          const isBridge = quoteResult.isBridge
+          let toAmountMin = '0'
+          if (data?.minOutAmount && Number(data.minOutAmount) > 0) {
+            toAmountMin = data.minOutAmount
+          } else if (isBridge) {
+            toAmountMin = '0'
+          } else {
+            const amount = Number(data?.outAmount || 0)
+            const slippageValue = Number.parseFloat(slippage)
+            const minAmount = (amount * (100 - slippageValue)) / 100
+            toAmountMin = minAmount.toFixed(20).replace(/\.?0+$/, '')
+            // If still in scientific notation, force convert to string
+            if (toAmountMin.includes('e') || toAmountMin.includes('E')) {
+              toAmountMin = minAmount.toLocaleString('fullwide', {
+                useGrouping: false,
+                maximumSignificantDigits: 21,
+              })
+              toAmountMin = toAmountMin.replace(/\.?0+$/, '')
+            }
+          }
+          const route: Route = {
+            id: data?.orderId || Date.now().toString(),
+            fromChainId: fromChainId,
+            fromAmountUSD: data?.fromTokenUSD || '0',
+            fromAmount: fromAmount.toString(),
+            fromToken: fromToken!,
+            fromAddress: fromAddress || '',
+            toChainId: toChainId,
+            toAmountUSD: data?.toTokenUSD || '0',
+            toAmount: data?.outAmount || '0',
+            toAmountMin,
+            toToken: toToken!,
+            toAddress: toAddress || '',
+            insurance: {
+              state: 'NOT_INSURABLE',
+              feeAmountUsd: '0',
+            },
+            steps: [
+              {
+                id: '1',
+                type: isBridge ? 'bridge' : 'swap',
+                tool: isBridge ? 'bridge' : 'leapswap',
+                transactionRequest: {
+                  chainId: data?.chainId || fromChainId,
+                  from: data?.from,
+                  data: data?.transaction || data?.data || '0x',
+                  to: data?.to,
+                  value: data?.value || '0x0',
+                  gasPrice: data?.gasPrice,
+                  type: isBridge ? data?.quoteAdapterKey : data?.dexId || '0x0',
+                },
+                toolDetails: {
+                  key: isBridge ? data?.quoteAdapterKey : 'leapswap',
+                  name: isBridge ? data?.quoteAdapterName : 'LeapSwap',
+                  logoURI: isBridge
+                    ? 'https://s3.leapswap.finance/static/debridge.svg'
+                    : LeapSwapLogo,
+                },
+                action: {
+                  fromChainId: fromChainId,
+                  fromAmount: fromAmount.toString(),
+                  fromToken: fromToken!,
+                  toChainId: toChainId,
+                  toToken: toToken!,
+                  slippage: Number(formattedSlippage),
+                  fromAddress: fromAddress || '',
+                  toAddress: toAddress || '',
+                },
+                estimate: {
+                  fromAmount: fromAmount.toString(),
+                  toAmount: data?.outAmount || '0',
+                  toAmountMin,
+                  approvalAddress: data?.approveContract || data?.to || '0x0',
+                  executionDuration:
+                    data?.executionDuration ||
+                    Math.floor(Math.random() * 20) + 40,
+                  tool: isBridge ? 'bridge' : 'leapswap',
+                  feeCosts: data?.feeCosts || [
+                    {
+                      name: 'Gas Fee',
+                      description: 'Estimated gas fee',
+                      token: fromToken!,
+                      amount: (data?.estimatedGas || '0').toString(),
+                      amountUSD: '0',
+                      percentage: '0',
+                      included: true,
+                    },
+                  ],
+                },
+                includedSteps: [],
+                quoteData: isBridge ? data : null,
+              },
+            ],
+            ...(data as any),
+          }
+          const routes = [route]
+          emitter.emit(WidgetEvent.AvailableRoutes, routes)
+          return routes
+        } catch (error) {
+          console.error('Failed to fetch LeapSwap routes:', error)
+          useServerErrorStore.getState().setError((error as Error).message)
+          // throw new Error((error as Error).message)
+        }
+      },
+      enabled: isEnabled,
+      staleTime: refetchTime,
+      refetchInterval(query) {
+        return Math.min(
+          Math.abs(refetchTime - (Date.now() - query.state.dataUpdatedAt)),
+          refetchTime
+        )
+      },
+      retry(failureCount, error: any) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Route query failed:', { failureCount, error })
+        }
+        if (failureCount >= 3) {
+          return false
+        }
+        if (error?.code === LeapSwapErrorCode.NotFound) {
+          return false
+        }
+        return false
+      },
+    })
+
+  const setReviewableRoute = (route: Route) => {
+    const queryDataKey = queryKey.toSpliced(queryKey.length - 1, 1, route.id)
+    queryClient.setQueryData(
+      queryDataKey,
+      { routes: [route] },
+      { updatedAt: dataUpdatedAt }
+    )
+    setExecutableRoute(route)
+  }
+
+  return {
+    routes: data,
+    isLoading,
+    isFetching,
+    isFetched,
+    dataUpdatedAt,
+    refetchTime,
+    refetch,
+    fromChain,
+    toChain,
+    queryKey,
+    setReviewableRoute,
+  }
+}

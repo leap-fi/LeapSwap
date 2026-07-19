@@ -1,0 +1,49 @@
+# dependencies
+node_modules
+dist/
+!packages/widget/dist/
+build/
+/.pnp
+.pnp.js
+.pnp.*
+.yarn
+
+# widget-sdk / widget-types build outputs
+_cjs
+_esm
+_types
+
+# testing
+/coverage
+coverage
+*.lcov
+.nyc_output
+
+# misc
+.DS_Store
+.idea/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.tsbuildinfo
+*.tmp
+*.tgz
+
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.next
+.cache
+.parcel-cache
+/.next/
+/out/
+next-env.d.ts
+.vercel
+/.nuxt/
+/.output/
+
+*.md

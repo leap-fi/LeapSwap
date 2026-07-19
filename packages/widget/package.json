@@ -1,0 +1,107 @@
+{
+  "name": "@leapswap/widget",
+  "version": "0.1.0",
+  "description": "LeapSwap Widget for cross-chain bridging and swapping.",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "watch": "tsc -w -p ./tsconfig.json",
+    "build": "pnpm clean && pnpm build:version && pnpm build:esm && pnpm build:clean",
+    "build:esm": "tsc --build",
+    "build:prerelease": "node ../../scripts/prerelease.js && cpy '../../*.md' .",
+    "build:postrelease": "node ../../scripts/postrelease.js && rm -rf *.md",
+    "build:version": "node ../../scripts/version.js",
+    "build:clean": "rm -rf tsconfig.tsbuildinfo ./dist/tsconfig.tsbuildinfo",
+    "release:build": "pnpm build",
+    "clean": "pnpm build:clean && rm -rf dist",
+    "check:types": "tsc --noEmit",
+    "check:circular-deps": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx')",
+    "check:circular-deps-graph": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx') --image graph.svg",
+    "test": "vitest run"
+  },
+  "author": "leapswap",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "widget",
+    "leapswap-widget",
+    "bridge",
+    "swap",
+    "cross-chain",
+    "multi-chain",
+    "metamask",
+    "ethereum",
+    "web3",
+    "leapswap"
+  ],
+  "dependencies": {
+    "@across-protocol/app-sdk": "^0.2.0",
+    "@bigmi/client": "^0.1.1",
+    "@bigmi/core": "^0.1.1",
+    "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@lifi/sdk": "^3.6.8",
+    "@mayanfinance/swap-sdk": "^13.2.0",
+    "@mui/icons-material": "6.0.2",
+    "@mui/material": "^6.4.8",
+    "@mui/system": "^6.4.8",
+    "@leapswap/wallet-management": "workspace:*",
+    "@leapswap/widget-sdk": "workspace:*",
+    "@relayprotocol/relay-bitcoin-wallet-adapter": "^11.0.1",
+    "@reservoir0x/relay-sdk": "^2.4.0",
+    "@relayprotocol/relay-sdk": "^5.1.0",
+    "@reservoir0x/relay-solana-wallet-adapter": "^2.0.5",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/wallet-adapter-base": "^0.9.24",
+    "@solana/web3.js": "^1.98.0",
+    "@tanstack/react-virtual": "3.13.4",
+    "bitcoinjs-lib": "^7.0.0-rc.0",
+    "ethers": "^6.13.5",
+    "i18next": "^24.2.3",
+    "microdiff": "^1.5.0",
+    "mitt": "^3.0.1",
+    "react-i18next": "^15.4.1",
+    "react-intersection-observer": "^9.16.0",
+    "react-router-dom": "^6.30.0",
+    "viem": "^2.40.3",
+    "zustand": "^5.0.3",
+    "@near-wallet-selector/react-hook": "^9.0.0",
+    "@near-wallet-selector/core": "^9.0.0",
+    "@near-wallet-selector/meteor-wallet": "^9.0.0",
+    "@near-wallet-selector/sender": "^9.0.0",
+    "@near-wallet-selector/modal-ui": "^9.0.0"
+  },
+  "devDependencies": {
+    "cpy-cli": "^5.0.0",
+    "madge": "^8.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  },
+  "peerDependencies": {
+    "@bigmi/react": ">=0.1.0",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@tanstack/react-query": "^5.62.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "wagmi": "^2.14.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
+  },
+  "files": [
+    "dist/**",
+    "src/**",
+    "!tsconfig.json"
+  ]
+}

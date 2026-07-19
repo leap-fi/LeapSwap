@@ -1,0 +1,35 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "analyze": "source-map-explorer 'dist/assets/*.js' --no-border-checks",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@leapswap/wallet-management": "workspace:*",
+    "@leapswap/widget": "workspace:*",
+    "@mui/material": "^6.4.8",
+    "@tanstack/react-query": "^5.68.0",
+    "@wagmi/connectors": "^5.7.11",
+    "buffer": "^6.0.3",
+    "events": "^3.3.0",
+    "process": "^0.11.10",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "viem": "^2.23.12",
+    "wagmi": "^2.14.15"
+  },
+  "devDependencies": {
+    "@types/events": "^3.0.3",
+    "@types/node": "^22.20.1",
+    "@types/react": "^19.0.11",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2"
+  }
+}

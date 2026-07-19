@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="frogSkin" cx="50%" cy="36%" r="70%" fx="42%" fy="28%">
+      <stop offset="0%" stop-color="#C9F74E"/>
+      <stop offset="40%" stop-color="#A6ED42"/>
+      <stop offset="75%" stop-color="#7ADF45"/>
+      <stop offset="100%" stop-color="#5FCF3A"/>
+    </radialGradient>
+    <radialGradient id="frogRim" cx="50%" cy="48%" r="56%">
+      <stop offset="58%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#145A18" stop-opacity="0.32"/>
+    </radialGradient>
+  </defs>
+  <!-- Wide frog head + twin eye bumps; no shield / lightning -->
+  <path
+    fill="url(#frogSkin)"
+    d="M50 93.5
+       C26 93.5 9.5 85.5 5.5 70
+       C2 58 4.5 44 12.5 33
+       C7.5 22 12 9.5 23.5 6
+       C33.5 2.8 43.5 8 47 17.5
+       C48.5 15.5 51.5 15.5 53 17.5
+       C56.5 8 66.5 2.8 76.5 6
+       C88 9.5 92.5 22 87.5 33
+       C95.5 44 98 58 94.5 70
+       C90.5 85.5 74 93.5 50 93.5Z"
+  />
+  <path
+    fill="url(#frogRim)"
+    d="M50 93.5
+       C26 93.5 9.5 85.5 5.5 70
+       C2 58 4.5 44 12.5 33
+       C7.5 22 12 9.5 23.5 6
+       C33.5 2.8 43.5 8 47 17.5
+       C48.5 15.5 51.5 15.5 53 17.5
+       C56.5 8 66.5 2.8 76.5 6
+       C88 9.5 92.5 22 87.5 33
+       C95.5 44 98 58 94.5 70
+       C90.5 85.5 74 93.5 50 93.5Z"
+  />
+  <!-- Left eye (highlights toward face center) -->
+  <circle cx="31.5" cy="34.5" r="15.2" fill="#F9FDE3"/>
+  <circle cx="33.4" cy="36.4" r="9.8" fill="#0A3A0F"/>
+  <circle cx="37.2" cy="30.8" r="2.7" fill="#FFF"/>
+  <circle cx="38.5" cy="34.6" r="1.05" fill="#FFF" fill-opacity=".72"/>
+  <!-- Right eye -->
+  <circle cx="68.5" cy="34.5" r="15.2" fill="#F9FDE3"/>
+  <circle cx="66.6" cy="36.4" r="9.8" fill="#0A3A0F"/>
+  <circle cx="62.8" cy="30.8" r="2.7" fill="#FFF"/>
+  <circle cx="61.5" cy="34.6" r="1.05" fill="#FFF" fill-opacity=".72"/>
+  <!-- Nostrils -->
+  <ellipse cx="46.1" cy="51.8" rx="1.6" ry="2.2" fill="#0A3A0F"/>
+  <ellipse cx="53.9" cy="51.8" rx="1.6" ry="2.2" fill="#0A3A0F"/>
+  <!-- Smile -->
+  <path
+    d="M26.5 58.8 Q50 74 73.5 58.8"
+    stroke="#0A3A0F"
+    stroke-width="1"
+    stroke-linecap="round"
+    fill="none"
+  />
+</svg>

@@ -1,0 +1,83 @@
+{
+  "name": "@leapswap/wallet-management",
+  "version": "0.1.0",
+  "description": "LeapSwap Wallet Management solution.",
+  "type": "module",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "watch": "tsc -w -p ./tsconfig.json",
+    "build": "pnpm clean && pnpm build:esm && pnpm build:clean",
+    "build:esm": "tsc --build",
+    "build:prerelease": "node ../../scripts/prerelease.js && cpy '../../*.md' .",
+    "build:postrelease": "node ../../scripts/postrelease.js && rm -rf *.md",
+    "build:clean": "rm -rf tsconfig.tsbuildinfo ./dist/tsconfig.tsbuildinfo",
+    "release:build": "pnpm build",
+    "clean": "pnpm build:clean && rm -rf dist",
+    "check:types": "tsc --noEmit",
+    "check:circular-deps": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx')",
+    "check:circular-deps-graph": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx') --image graph.svg"
+  },
+  "author": "leapswap",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "wallet",
+    "wallet-management",
+    "metamask",
+    "wallet-connect",
+    "coinbase",
+    "eip1193",
+    "ethereum",
+    "ENS",
+    "web3",
+    "blockchain",
+    "leapswap"
+  ],
+  "dependencies": {
+    "@bigmi/client": "^0.1.1",
+    "@bigmi/core": "^0.1.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@leapswap/widget-sdk": "workspace:*",
+    "@mui/icons-material": "6.0.2",
+    "@mui/material": "^6.4.8",
+    "@mui/system": "^6.4.8",
+    "@solana/wallet-adapter-base": "^0.9.24",
+    "@solana/web3.js": "^1.98.0",
+    "@wagmi/core": "^2.16.7",
+    "@near-wallet-selector/react-hook": "^9.0.0",
+    "@near-wallet-selector/core": "^9.0.0",
+    "@near-wallet-selector/meteor-wallet": "^9.0.0",
+    "@near-wallet-selector/sender": "^9.0.0",
+    "@near-wallet-selector/modal-ui": "^9.0.0",
+    "i18next": "^24.2.3",
+    "mitt": "^3.0.1",
+    "react-i18next": "^15.4.1",
+    "use-sync-external-store": "^1.4.0",
+    "viem": "^2.40.3",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/use-sync-external-store": "^0.0.6",
+    "cpy-cli": "^5.0.0",
+    "madge": "^8.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "@bigmi/react": ">=0.1.0",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "wagmi": "^2.14.0"
+  },
+  "files": [
+    "dist/**",
+    "src/**",
+    "!tsconfig.json"
+  ]
+}
