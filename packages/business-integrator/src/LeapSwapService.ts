@@ -29,10 +29,10 @@ export class LeapSwapService {
   }
 
   constructor(config: LeapSwapServiceConfig = {}) {
-    this.apiV3Url = config.apiV3Url ?? 'https://open-api.leapswap.finance/v3'
-    this.apiV4Url = config.apiV4Url ?? 'https://open-api.leapswap.finance/v4'
+    this.apiV3Url = config.apiV3Url ?? 'https://open-api.openocean.finance/v3'
+    this.apiV4Url = config.apiV4Url ?? 'https://open-api.openocean.finance/v4'
     this.nearApiUrl =
-      config.nearApiUrl ?? 'https://ethapi.leapswap.finance/v1/near'
+      config.nearApiUrl ?? 'https://ethapi.openocean.finance/v1/near'
     this.defaultReferrer =
       config.defaultReferrer ?? '0x3487ef9f9b36547e43268b8f0e2349a226c70b53'
   }

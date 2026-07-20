@@ -1,22 +1,46 @@
 import { Box, Tooltip, Typography } from '@mui/material'
 import { version } from '../../config/version.js'
 import { useWidgetConfig } from '../../providers/WidgetProvider/WidgetProvider.js'
+import type { PoweredByBranding, PoweredByType } from '../../types/widget.js'
 import { Link } from './PoweredBy.style.js'
 
-const poweredByConfig = {
+const poweredByPresets: Record<
+  PoweredByType,
+  Required<Pick<PoweredByBranding, 'name' | 'url' | 'prefix'>>
+> = {
   default: {
-    // TODO: 换成你们的官网；暂不指向 LeapSwap
-    url: 'https://github.com/leapswap',
-    text: 'LeapSwap',
+    url: 'https://github.com/leap-fi/LeapSwap',
+    name: 'LeapSwap',
+    prefix: 'Powered by',
   },
   jumper: {
     url: 'https://jumper.exchange',
-    text: 'Jumper',
+    name: 'Jumper',
+    prefix: 'Powered by',
   },
+}
+
+const isPoweredByBranding = (
+  value: PoweredByType | PoweredByBranding
+): value is PoweredByBranding =>
+  typeof value === 'object' && value !== null && 'name' in value && 'url' in value
+
+const resolvePoweredByBranding = (
+  poweredBy: PoweredByType | PoweredByBranding = 'default'
+): Required<Pick<PoweredByBranding, 'name' | 'url' | 'prefix'>> => {
+  if (isPoweredByBranding(poweredBy)) {
+    return {
+      prefix: poweredBy.prefix ?? 'Powered by',
+      name: poweredBy.name,
+      url: poweredBy.url,
+    }
+  }
+  return poweredByPresets[poweredBy]
 }
 
 export const PoweredBy: React.FC = () => {
   const { poweredBy = 'default' } = useWidgetConfig()
+  const branding = resolvePoweredByBranding(poweredBy)
 
   return (
     <Box
@@ -31,7 +55,7 @@ export const PoweredBy: React.FC = () => {
     >
       <Tooltip title={`v${version}`} enterDelay={1000}>
         <Link
-          href={poweredByConfig[poweredBy].url}
+          href={branding.url}
           target="_blank"
           underline="none"
           color="text.primary"
@@ -44,7 +68,7 @@ export const PoweredBy: React.FC = () => {
               px: 0.5,
             }}
           >
-            Powered by
+            {branding.prefix}
           </Typography>
           <Typography
             sx={{
@@ -53,7 +77,7 @@ export const PoweredBy: React.FC = () => {
               fontWeight: 600,
             }}
           >
-            {poweredByConfig[poweredBy].text}
+            {branding.name}
           </Typography>
         </Link>
       </Tooltip>

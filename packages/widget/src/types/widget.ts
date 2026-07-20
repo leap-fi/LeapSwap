@@ -203,6 +203,17 @@ export type WidgetLanguages = {
 
 export type PoweredByType = 'default' | 'jumper'
 
+export interface PoweredByBranding {
+  /** Brand name shown in the footer (e.g. "LeapSwap"). */
+  name: string
+  /** URL opened when the footer link is clicked. */
+  url: string
+  /** Prefix before the brand name. Defaults to "Powered by". */
+  prefix?: string
+}
+
+export type PoweredByConfig = PoweredByType | PoweredByBranding
+
 export interface RouteLabel {
   text: string
   sx?: SxProps<Theme>
@@ -280,7 +291,7 @@ export interface WidgetConfig {
   languageResources?: LanguageResources
   explorerUrls?: Record<number, string[]> &
   Partial<Record<'internal', string[]>>
-  poweredBy?: PoweredByType
+  poweredBy?: PoweredByConfig
   isDefaultValueEnabled?: boolean
   /**
    * Custom labels/badges to show on routes based on specified rules

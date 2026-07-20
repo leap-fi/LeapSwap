@@ -53,7 +53,7 @@ export async function fetchLeapSwapChains(
   config: FetchLeapSwapChainsConfig = {}
 ): Promise<ExtendedChain[]> {
   const apiUrl =
-    config.apiUrl ?? 'https://open-api.leapswap.finance/v3/widgetv2/chains'
+    config.apiUrl ?? 'https://open-api.openocean.finance/v3/widgetv2/chains'
   const response = await fetch(apiUrl)
   if (!response.ok) {
     throw new Error(`Failed to fetch chains: ${response.status}`)

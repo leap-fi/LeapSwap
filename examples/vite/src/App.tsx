@@ -15,6 +15,8 @@ export function App() {
       chainsProvider={chainsProvider}
       config={{
         buildUrl: false,
+        // Custom footer branding (optional):
+        poweredBy: { name: 'Your Brand', url: 'https://example.com' },
         subvariant: 'split',
         subvariantOptions: {
           split: 'bridge',
