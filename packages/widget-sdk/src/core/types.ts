@@ -39,14 +39,13 @@ export interface StepExecutor {
 
 export interface RouteExtended extends Omit<Route, 'steps'> {
   steps: LeapSwapStepExtended[]
-  // Add missing properties that are used in the codebase
   priceImpact?: string
-  estimatedGas?: number
   fromAmountMin?: string | number
+  /** Optional bridge metadata written by cross-chain adapters. */
   data?: {
     prependedOperatingExpenseCost?: string
-    estimatedGas?: number
   }
+  prependedOperatingExpenseCost?: string
 }
 
 export interface LeapSwapStepExtended extends LeapSwapStep {

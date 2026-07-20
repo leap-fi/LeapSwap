@@ -8,7 +8,12 @@ import type {
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
-import { getPublicClient, getWalletClient } from 'wagmi/actions'
+import {
+  getAccount,
+  getPublicClient,
+  getWalletClient,
+  switchChain,
+} from 'wagmi/actions'
 import { bridgeExecuteSwap } from '../cross/crossChainQuote.js'
 import { useSettingsStore } from '../stores/settings/useSettingsStore.js'
 import { sendAndConfirmSolanaTransaction } from './SendAndConfirmSolanaTransaction.js'
@@ -453,6 +458,42 @@ async function executeSolanaSwap(
   }
 }
 
+/** Ensure wallet is on targetChain, then return a matching wallet client.
+ * UI chain selection only updates form state — switch happens here at execute time.
+ * Must switch BEFORE getWalletClient: wagmi throws ConnectorChainMismatchError when
+ * connection.chainId and connector.getChainId() disagree.
+ */
+async function getSyncedEvmWalletClient(
+  wagmiConfig: ExecuteRouteOptions['wagmiConfig'],
+  targetChainId: number
+) {
+  const account = getAccount(wagmiConfig)
+  if (!account.connector) {
+    return undefined
+  }
+
+  let connectorChainId = account.chainId
+  try {
+    connectorChainId = await account.connector.getChainId()
+  } catch {
+    // fall back to connection chainId
+  }
+
+  const skipSwitch =
+    targetChainId === 20000000000001 || connectorChainId === targetChainId
+
+  if (!skipSwitch) {
+    try {
+      await switchChain(wagmiConfig, { chainId: targetChainId })
+    } catch (error) {
+      console.error('Failed to switch chain:', error)
+      throw new Error(`Please manually switch to chain ID: ${targetChainId}`)
+    }
+  }
+
+  return getWalletClient(wagmiConfig, { chainId: targetChainId })
+}
+
 // Execute EVM transaction
 async function executeEvmSwap(
   step: ExtendedLeapSwapStep,
@@ -461,7 +502,11 @@ async function executeEvmSwap(
   route: ExtendedRoute
 ): Promise<void> {
   try {
-    let walletClient = await getWalletClient(options.wagmiConfig)
+    const targetChainId = step.action.fromChainId
+    const walletClient = await getSyncedEvmWalletClient(
+      options.wagmiConfig,
+      targetChainId
+    )
     // Check if wallet is connected
     if (!walletClient) {
       if (options.account?.connector && options.onDisconnect) {
@@ -473,34 +518,9 @@ async function executeEvmSwap(
       throw new Error('Please connect wallet first')
     }
 
-    // Check if current chain matches target chain
-    console.log(
-      'walletClient',
-      walletClient,
-      walletClient.chain,
-      walletClient.getChainId
-    )
-    const currentChainId = await walletClient.getChainId()
-    const targetChainId = step.action.fromChainId
-    if (currentChainId != targetChainId && targetChainId != 20000000000001) {
-      try {
-        // Try to switch to target chain
-        await walletClient.switchChain({ id: targetChainId })
-
-        // Get updated walletClient after chain switch
-        walletClient = (await getWalletClient(options.wagmiConfig)) as any
-        const currentChainId2 = await walletClient.getChainId()
-
-        if (!walletClient || currentChainId2 !== targetChainId) {
-          throw new Error('Failed to switch chain')
-        }
-      } catch (error) {
-        console.error('Failed to switch chain:', error)
-        throw new Error(`Please manually switch to chain ID: ${targetChainId}`)
-      }
-    }
-
-    const publicClient = getPublicClient(options.wagmiConfig)
+    const publicClient = getPublicClient(options.wagmiConfig, {
+      chainId: targetChainId,
+    })
     if (!publicClient) {
       // If disconnect callback exists, disconnect the current connection first
       if (options.account?.connector && options.onDisconnect) {

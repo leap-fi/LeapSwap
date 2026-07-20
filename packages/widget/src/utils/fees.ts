@@ -114,11 +114,15 @@ export const getStepFeeCostsBreakdown = (
   const { amount, amountUSD } = feeCosts.reduce(
     (acc, feeCost) => {
       const feeAmount = BigInt(Number(feeCost.amount).toFixed(0) || 0)
-      const amountUSD = formatTokenPrice(
-        feeAmount,
-        feeCost.token.priceUSD,
-        feeCost.token.decimals
-      )
+      const explicitUSD = Number(feeCost.amountUSD)
+      const amountUSD =
+        Number.isFinite(explicitUSD) && feeCost.amountUSD !== ''
+          ? explicitUSD
+          : formatTokenPrice(
+              feeAmount,
+              feeCost.token.priceUSD,
+              feeCost.token.decimals
+            )
 
       acc.amount += feeAmount
       acc.amountUSD += amountUSD

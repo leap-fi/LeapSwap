@@ -28,8 +28,8 @@
 
 | 注入项 | 谁来实现 | 说明 |
 |--------|----------|------|
-| **`swapDataProvider`** | 接入方 integrator | 实现 `@leapswap/widget` 的 `SwapDataProvider`（报价、Token、Gas、RPC 等） |
-| **`chainsProvider`** | 接入方 integrator | `() => Promise<ExtendedChain[]>`，返回支持的链列表 |
+| **`swapDataProvider`** | 接入方 integrator | 实现通用 `SwapDataProvider`（入参/出参见 widget 类型；OpenOcean 字段映射放在 integrator 内） |
+| **`chainsProvider`** | 接入方 integrator | `() => Promise<ExtendedChain[]>` |
 
 Widget 只消费接口，不关心背后是 OpenOcean、自研聚合器还是某 DEX API。  
 参考实现：[`@leapswap/business-integrator`](./packages/business-integrator)（`createOpenOceanDataProvider` / `createOpenOceanChainsProvider`）。

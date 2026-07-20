@@ -1,35 +1,14 @@
 import { Box, Button, Tooltip, Typography } from '@mui/material'
-import type { IntegratorMode } from '../integrator/types.js'
-import type { ExampleChrome } from '../theme.js'
+import type { ExampleChrome, ThemeId } from '../theme.js'
+import { themePresetList } from '../theme.js'
 
-interface IntegratorSwitchProps {
-  value: IntegratorMode
+interface ThemeSwitchProps {
+  value: ThemeId
   chrome: ExampleChrome
-  onChange: (mode: IntegratorMode) => void
+  onChange: (themeId: ThemeId) => void
 }
 
-const options: {
-  value: IntegratorMode
-  label: string
-  tip: string
-}[] = [
-  {
-    value: 'openocean',
-    label: 'OpenOcean',
-    tip: 'Use @leapswap/business-integrator (OpenOcean API reference)',
-  },
-  {
-    value: 'custom',
-    label: 'Custom',
-    tip: 'Use local src/integrator stub — replace with your own DEX / aggregator',
-  },
-]
-
-export function IntegratorSwitch({
-  value,
-  chrome,
-  onChange,
-}: IntegratorSwitchProps) {
+export function ThemeSwitch({ value, chrome, onChange }: ThemeSwitchProps) {
   return (
     <Box display="flex" flexDirection="column" gap={1.25}>
       <Typography
@@ -37,17 +16,17 @@ export function IntegratorSwitch({
         fontWeight={600}
         sx={{ color: chrome.text, fontSize: 14 }}
       >
-        Data source
+        Theme
       </Typography>
       <Box display="flex" flexWrap="wrap" gap={1}>
-        {options.map((option) => {
-          const selected = value === option.value
+        {themePresetList.map((preset) => {
+          const selected = value === preset.id
           return (
-            <Tooltip key={option.value} title={option.tip} arrow placement="bottom">
+            <Tooltip key={preset.id} title={preset.tip} arrow placement="bottom">
               <Button
                 size="small"
                 disableElevation
-                onClick={() => onChange(option.value)}
+                onClick={() => onChange(preset.id)}
                 sx={{
                   minWidth: 'unset',
                   width: 'fit-content',
@@ -66,7 +45,7 @@ export function IntegratorSwitch({
                   },
                 }}
               >
-                {option.label}
+                {preset.label}
               </Button>
             </Tooltip>
           )

@@ -102,6 +102,9 @@ importers:
 
   packages/business-integrator:
     dependencies:
+      '@leapswap/widget':
+        specifier: workspace:*
+        version: link:../widget
       '@leapswap/widget-types':
         specifier: workspace:*
         version: link:../widget-types

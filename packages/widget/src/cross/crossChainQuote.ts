@@ -110,45 +110,52 @@ export async function getCrossChainQuote({
     )
 
     const best = quoteResults[0]
-    // 5. Construct return structure compatible with useRoutes.ts
-    return {
-      data: {
-        minOutAmount: best.quote.outputAmount || '0',
-        outAmount: best.quote.outputAmount || '0',
-        fromTokenUSD: best.quote.inputUsd?.toString() || '0',
-        toTokenUSD: best.quote.outputUsd?.toString() || '0',
-        quoteAdapterName: best.adapter?.getName() || '',
-        quoteAdapterKey: best.adapter?.getName()?.toLowerCase() || '',
-        chainId: fromMsg.chainId,
-        from: account,
+    const adapterName = best.adapter?.getName() || 'Bridge'
+    const adapterKey = adapterName.toLowerCase()
+    const contractAddress = best.quote.contractAddress || '0x0'
+    const txValue =
+      best.quote.rawQuote.transactionRequest?.value ||
+      best.quote.rawQuote.tx?.value ||
+      '0x0'
+    const txData =
+      best.quote.rawQuote.transactionRequest?.data ||
+      best.quote.rawQuote.tx?.data ||
+      '0x'
 
-        to: best.quote.contractAddress || '0x0',
-        value:
-          best.quote.rawQuote.transactionRequest?.value ||
-          best.quote.rawQuote.tx?.value ||
-          '0x0',
-        data:
-          best.quote.rawQuote.transactionRequest?.data ||
-          best.quote.rawQuote.tx?.data ||
-          '0x',
-        // gasLimit: best.quote.rawQuote.tx?.gasLimit || '0',
-        // gas: best.quote.rawQuote.tx?.gas || '0',
-        // nonce: best.quote.rawQuote.tx?.nonce || '0',
-        approveContract: best.quote.contractAddress || '0x0',
-        executionDuration: best.quote.timeEstimate || 300,
-        // Fee information
-        feeCosts: [
-          {
-            name: `${best.adapter?.getName() || ''} Fee`,
-            description: 'Protocol fee',
-            token: fromMsg,
-            amount: '0',
-            amountUSD: best.quote.protocolFee,
-            percentage: '0',
-            included: false,
-          },
-        ],
-        // Original quote data
+    // Normalize to widget SwapQuoteResult — adapters stay vendor-aware here.
+    return {
+      isBridge: true,
+      outAmount: best.quote.outputAmount || '0',
+      minOutAmount: best.quote.outputAmount || '0',
+      fromAmountUSD: best.quote.inputUsd?.toString() || '0',
+      toAmountUSD: best.quote.outputUsd?.toString() || '0',
+      transaction: {
+        chainId: Number(fromMsg.chainId) || undefined,
+        from: account,
+        to: contractAddress,
+        data: String(txData),
+        value: String(txValue),
+        type: adapterKey,
+      },
+      approvalAddress: contractAddress,
+      executionDuration: best.quote.timeEstimate || 300,
+      feeCosts: [
+        {
+          name: `${adapterName} Fee`,
+          description: 'Protocol fee',
+          amount: '0',
+          amountUSD: best.quote.protocolFee?.toString?.() ?? String(best.quote.protocolFee ?? '0'),
+          percentage: '0',
+          included: false,
+        },
+      ],
+      tool: {
+        key: adapterKey,
+        name: adapterName,
+      },
+      // Execution payload for bridgeExecuteSwap (adapter key + raw quote)
+      raw: {
+        quoteAdapterKey: adapterKey,
         quoteRawData: best.quote,
       },
     }

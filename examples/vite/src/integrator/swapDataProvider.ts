@@ -14,7 +14,7 @@ const stubService: SwapDataProvider = {
   getSwapQuote: notImplemented,
   getTokenList: async () => [],
   getDexList: async () => ({}),
-  getGasPrice: async () => ({ data: { gasPrice: '0' } }),
+  getGasPrice: async () => ({ gasPrice: '0' }),
   getTokenInfo: notImplemented,
   getTokensPrice: async () => ({}),
   getRpcUrl: async () => '',

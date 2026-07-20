@@ -84,6 +84,10 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
   const { token: toToken } = useToken(toChainId, toTokenAddress)
   const { chain: fromChain } = useChain(fromChainId)
   const { chain: toChain } = useChain(toChainId)
+  const { token: nativeToken } = useToken(
+    fromChainId,
+    fromChain?.nativeToken?.address
+  )
   const { enabled: enabledRefuel, fromAmount: gasRecommendationFromAmount } =
     useGasRefuel()
 
@@ -159,6 +163,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
       queryFn: async ({
         queryKey: [
           _,
+          _integratorCacheKey,
           fromAddress,
           fromChainId,
           fromTokenAddress,
@@ -251,75 +256,66 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
               //   account: account?.address || '',
               //   receiver: toAddress, // Assuming receiver is the same as account for now
               // })
-              // Add a flag or modify structure to indicate it's a Debridge route
-              if (quoteResult) {
-                if (quoteResult.error) {
-                  throw new Error(quoteResult.error)
-                }
-                if (quoteResult.data) {
-                  quoteResult.isBridge = true
-                }
-              }
             } else {
               console.warn(
-                'Cannot get Debridge quote: Missing account address, fromToken, or toToken.'
+                'Cannot get cross-chain quote: Missing fromToken or toToken.'
               )
-              quoteResult = null // Or handle error appropriately
+              quoteResult = null
             }
           } else {
-            // Use swap data provider for same-chain swaps
-            if (account.address) {
-              quoteResult = await swapDataProvider.getSwapQuote({
-                chain: fromChainId.toString(),
-                inTokenSymbol: fromToken?.symbol || '',
-                inTokenAddress: fromTokenAddress,
-                outTokenSymbol: toToken?.symbol || '',
-                outTokenAddress: toTokenAddress,
-                amount: fromAmount.toString(),
-                account: account.address,
-                slippage: formattedSlippage, // LeapSwap expects slippage like '100' for 1%
-                gasPrice: gasPrice || '10', // Consider chain-specific defaults
-                enabledDexIds: fromChainId === 1151111081099710 ? '6' : '', // Example for Solana specific dex
-                referrer: referrer?.address || '',
-                referrerFee: referrer?.fee || '',
-              })
-            } else {
-              // Use getQuote if account is not connected (view mode)
-              quoteResult = await swapDataProvider.getQuote({
-                chain: fromChainId.toString(),
-                inTokenSymbol: fromToken?.symbol || '',
-                inTokenAddress: fromTokenAddress,
-                outTokenSymbol: toToken?.symbol || '',
-                outTokenAddress: toTokenAddress,
-                amount: fromAmount.toString(),
-                slippage: formattedSlippage, // LeapSwap expects slippage like '100' for 1%
-                gasPrice: gasPrice || '10', // Consider chain-specific defaults
-                enabledDexIds: fromChainId === 1151111081099710 ? '6' : '', // Example for Solana specific dex
-              })
+            // Same-chain: call generic SwapDataProvider (integrators adapt vendor APIs)
+            const quoteParams = {
+              chainId: fromChainId,
+              fromToken: {
+                address: fromTokenAddress,
+                symbol: fromToken?.symbol || '',
+                decimals: fromToken!.decimals,
+              },
+              toToken: {
+                address: toTokenAddress,
+                symbol: toToken?.symbol || '',
+                decimals: toToken!.decimals,
+              },
+              amount: fromAmount.toString(),
+              slippage: formattedSlippage,
+              gasPrice: gasPrice ? String(gasPrice) : undefined,
+              referrer: {
+                address: referrer?.address,
+                fee: referrer?.fee,
+              },
             }
-            // Ensure the structure is consistent or add a flag
-            if (quoteResult) {
-              quoteResult.isBridge = false
-            }
+
+            quoteResult = account.address
+              ? await swapDataProvider.getSwapQuote({
+                  ...quoteParams,
+                  account: account.address,
+                })
+              : await swapDataProvider.getQuote(quoteParams)
           }
           if (!quoteResult) {
             return []
           }
-          // biome-ignore lint/complexity/useOptionalChain: <explanation>
-          const data = (quoteResult && quoteResult.data) || {}
-          // minOutAmount calculation is now handled within DebridgeService or swap data provider
-          const isBridge = quoteResult.isBridge
+
+          // Both same-chain and cross-chain quotes are SwapQuoteResult-shaped.
+          const quote = quoteResult as import('../types/swapDataProvider.js').SwapQuoteResult & {
+            isBridge?: boolean
+            error?: string
+          }
+          if (quote.error) {
+            throw new Error(quote.error)
+          }
+          const isBridge = Boolean(quote.isBridge) || fromChainId !== toChainId
+          const tx = quote.transaction
+          const tool = quote.tool
+
           let toAmountMin = '0'
-          if (data?.minOutAmount && Number(data.minOutAmount) > 0) {
-            toAmountMin = data.minOutAmount
-          } else if (isBridge) {
-            toAmountMin = '0'
-          } else {
-            const amount = Number(data?.outAmount || 0)
-            const slippageValue = Number.parseFloat(slippage)
+          if (quote.minOutAmount && Number(quote.minOutAmount) > 0) {
+            toAmountMin = quote.minOutAmount
+          } else if (!isBridge) {
+            const amount = Number(quote.outAmount || 0)
+            const slippageValue = Number.parseFloat(String(slippage))
             const minAmount = (amount * (100 - slippageValue)) / 100
             toAmountMin = minAmount.toFixed(20).replace(/\.?0+$/, '')
-            // If still in scientific notation, force convert to string
             if (toAmountMin.includes('e') || toAmountMin.includes('E')) {
               toAmountMin = minAmount.toLocaleString('fullwide', {
                 useGrouping: false,
@@ -328,16 +324,62 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
               toAmountMin = toAmountMin.replace(/\.?0+$/, '')
             }
           }
+
+          const outAmount = quote.outAmount || '0'
+          const fromAmountUSD = quote.fromAmountUSD || '0'
+          const toAmountUSD = quote.toAmountUSD || '0'
+
+          // Build standard estimate.gasCosts — UI reads this via getAccumulatedFeeCostsBreakdown
+          const gasCosts = (() => {
+            if (!quote.estimatedGas || !gasPrice || !nativeToken) {
+              return undefined
+            }
+            const estimate = String(quote.estimatedGas)
+            const price = String(gasPrice)
+            let amount: string
+            try {
+              amount = (BigInt(price) * BigInt(Math.floor(Number(estimate)))).toString()
+            } catch {
+              amount = String(Number(price) * Number(estimate))
+            }
+            const decimals = nativeToken.decimals ?? 18
+            const amountUSD = String(
+              Number(nativeToken.priceUSD || 0) *
+                (Number(amount) / 10 ** decimals)
+            )
+            return [
+              {
+                type: 'SEND' as const,
+                price,
+                estimate,
+                limit: estimate,
+                amount,
+                amountUSD,
+                token: nativeToken,
+              },
+            ]
+          })()
+
+          const feeCosts = quote.feeCosts?.map((feeCost) => ({
+            name: feeCost.name,
+            description: feeCost.description || '',
+            amount: feeCost.amount,
+            amountUSD: feeCost.amountUSD || '0',
+            percentage: feeCost.percentage || '0',
+            included: feeCost.included ?? true,
+            token: fromToken!,
+          }))
+
           const route: Route = {
-            id: data?.orderId || Date.now().toString(),
+            id: quote.orderId || Date.now().toString(),
             fromChainId: fromChainId,
-            fromAmountUSD: data?.fromTokenUSD || '0',
+            fromAmountUSD,
             fromAmount: fromAmount.toString(),
             fromToken: fromToken!,
             fromAddress: fromAddress || '',
             toChainId: toChainId,
-            toAmountUSD: data?.toTokenUSD || '0',
-            toAmount: data?.outAmount || '0',
+            toAmountUSD,
+            toAmount: outAmount,
             toAmountMin,
             toToken: toToken!,
             toAddress: toAddress || '',
@@ -349,22 +391,22 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
               {
                 id: '1',
                 type: isBridge ? 'bridge' : 'swap',
-                tool: isBridge ? 'bridge' : 'leapswap',
+                tool: isBridge ? 'bridge' : tool?.key || 'swap',
                 transactionRequest: {
-                  chainId: data?.chainId || fromChainId,
-                  from: data?.from,
-                  data: data?.transaction || data?.data || '0x',
-                  to: data?.to,
-                  value: data?.value || '0x0',
-                  gasPrice: data?.gasPrice,
-                  type: isBridge ? data?.quoteAdapterKey : data?.dexId || '0x0',
+                  chainId: tx?.chainId || fromChainId,
+                  from: tx?.from,
+                  data: tx?.data || '0x',
+                  to: tx?.to,
+                  value: tx?.value || '0x0',
+                  gasPrice: tx?.gasPrice,
+                  type: tx?.type || tool?.key || '0x0',
                 },
                 toolDetails: {
-                  key: isBridge ? data?.quoteAdapterKey : 'leapswap',
-                  name: isBridge ? data?.quoteAdapterName : 'LeapSwap',
+                  key: tool?.key || (isBridge ? 'bridge' : 'swap'),
+                  name: tool?.name || (isBridge ? 'Bridge' : 'Swap'),
                   logoURI: isBridge
-                    ? DebridgeLogo
-                    : LeapSwapLogo,
+                    ? tool?.logoURI || DebridgeLogo
+                    : tool?.logoURI || LeapSwapLogo,
                 },
                 action: {
                   fromChainId: fromChainId,
@@ -378,38 +420,30 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
                 },
                 estimate: {
                   fromAmount: fromAmount.toString(),
-                  toAmount: data?.outAmount || '0',
+                  toAmount: outAmount,
                   toAmountMin,
-                  approvalAddress: data?.approveContract || data?.to || '0x0',
+                  approvalAddress:
+                    quote.approvalAddress || tx?.to || '0x0',
                   executionDuration:
-                    data?.executionDuration ||
+                    quote.executionDuration ||
                     Math.floor(Math.random() * 20) + 40,
-                  tool: isBridge ? 'bridge' : 'leapswap',
-                  feeCosts: data?.feeCosts || [
-                    {
-                      name: 'Gas Fee',
-                      description: 'Estimated gas fee',
-                      token: fromToken!,
-                      amount: (data?.estimatedGas || '0').toString(),
-                      amountUSD: '0',
-                      percentage: '0',
-                      included: true,
-                    },
-                  ],
+                  tool: isBridge ? 'bridge' : tool?.key || 'swap',
+                  gasCosts,
+                  feeCosts,
                 },
                 includedSteps: [],
-                quoteData: isBridge ? data : null,
+                // Bridge execution needs adapter key + vendor raw quote
+                quoteData: isBridge ? quote.raw ?? null : null,
               },
             ],
-            ...(data as any),
-          }
+          } as unknown as Route
           const routes = [route]
           emitter.emit(WidgetEvent.AvailableRoutes, routes)
           return routes
         } catch (error) {
-          console.error('Failed to fetch LeapSwap routes:', error)
+          console.error('Failed to fetch routes:', error)
           useServerErrorStore.getState().setError((error as Error).message)
-          // throw new Error((error as Error).message)
+          return []
         }
       },
       enabled: isEnabled,
