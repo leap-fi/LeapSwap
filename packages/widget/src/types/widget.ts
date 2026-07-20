@@ -287,7 +287,7 @@ export interface WidgetConfig {
   routeLabels?: RouteLabelRule[]
   /**
    * Same-chain swap data source (quotes, tokens, gas, RPC, etc.).
-   * Provide via @leapswap/adapter-leapswap or a custom implementation.
+   * Provide via @leapswap/business-integrator or a custom implementation.
    */
   swapDataProvider?: SwapDataProvider
 }

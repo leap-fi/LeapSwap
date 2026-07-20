@@ -87,6 +87,16 @@ const NATIVE_TOKEN_ADDRESSES = [
   '', // Empty string might be used in some cases
 ].map((addr) => addr.toLowerCase())
 
+const NATIVE_TOKEN_ICONS = {
+  eth: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+  bnb: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+  matic: 'https://assets.coingecko.com/coins/images/4713/small/polygon.png',
+  avax: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+  ftm: 'https://assets.coingecko.com/coins/images/4001/small/Fantom_round.png',
+  sol: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  flr: 'https://assets.coingecko.com/coins/images/28624/small/Flare_Networks_logo.png',
+} as const
+
 // Native token information
 const NATIVE_TOKENS: Record<number, Asset> = {
   1: {
@@ -95,7 +105,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     name: 'Ethereum',
     decimals: 18,
     address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-    icon: '//s3.leapswap.finance/images/1637894743832_8242841824007741.png',
+    icon: NATIVE_TOKEN_ICONS.eth,
   },
   56: {
     chainId: 56,
@@ -103,12 +113,12 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     name: 'Binance Chain Native Token',
     symbol: 'BNB',
     decimals: 18,
-    icon: 'https://s3.leapswap.finance/token_logos/logos/bsc/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png',
+    icon: NATIVE_TOKEN_ICONS.bnb,
   },
   137: {
     chainId: 137,
     address: '0x0000000000000000000000000000000000001010',
-    icon: 'https://s3.leapswap.finance/images/1637561049975_1903381661429342.png',
+    icon: NATIVE_TOKEN_ICONS.matic,
     name: 'Matic',
     symbol: 'MATIC',
     decimals: 18,
@@ -118,7 +128,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: '0x0000000000000000000000000000000000000000',
     name: 'Avalanche',
     symbol: 'AVAX',
-    icon: 'https://ethapi.leapswap.finance/logos/avax/0x0000000000000000000000000000000000000000.png',
+    icon: NATIVE_TOKEN_ICONS.avax,
     decimals: 18,
   },
   250: {
@@ -127,14 +137,14 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     name: 'Fantom',
     symbol: 'FTM',
     decimals: 18,
-    icon: 'https://ethapi.leapswap.finance/logos/fantom/0x0000000000000000000000000000000000000000.png',
+    icon: NATIVE_TOKEN_ICONS.ftm,
   },
   42161: {
     name: 'ETH',
     address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     decimals: 18,
     symbol: 'ETH',
-    icon: 'https://s3.leapswap.finance/images/1660286550539_3465620840567112.png',
+    icon: NATIVE_TOKEN_ICONS.eth,
     chainId: 42161,
   },
   10: {
@@ -142,7 +152,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     decimals: 18,
     symbol: 'ETH',
-    icon: 'https://s3.leapswap.finance/images/1661137422943_3757149396730206.png',
+    icon: NATIVE_TOKEN_ICONS.eth,
     chainId: 10,
   },
   324: {
@@ -151,7 +161,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     decimals: 18,
     symbol: 'ETH',
-    icon: 'https://s3.leapswap.finance/token_logos/logos/1678448299500_8777733284012612.png',
+    icon: NATIVE_TOKEN_ICONS.eth,
   },
   8453: {
     chainId: 8453,
@@ -159,7 +169,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
     decimals: 18,
     symbol: 'ETH',
-    icon: 'https://s3.leapswap.finance/token_logos/logos/1704872214606_042688653920736286.png',
+    icon: NATIVE_TOKEN_ICONS.eth,
   },
   7565164: {
     chainId: 7565164,
@@ -167,7 +177,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: 'So11111111111111111111111111111111111111112',
     decimals: 9,
     symbol: 'SOL',
-    icon: 'https://s3.leapswap.finance/token_logos/logos/solana/So11111111111111111111111111111111111111112.png',
+    icon: NATIVE_TOKEN_ICONS.sol,
   },
   14: {
     chainId: 14,
@@ -175,6 +185,7 @@ const NATIVE_TOKENS: Record<number, Asset> = {
     address: '0x0000000000000000000000000000000000000000',
     decimals: 18,
     symbol: 'FLR',
+    icon: NATIVE_TOKEN_ICONS.flr,
   },
 }
 

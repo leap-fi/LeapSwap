@@ -1,7 +1,7 @@
 {
-  "name": "@leapswap/adapter-leapswap",
+  "name": "@leapswap/business-integrator",
   "version": "0.1.0",
-  "description": "LeapSwap API adapter for @leapswap/widget",
+  "description": "Business integrator swap data provider for @leapswap/widget",
   "type": "module",
   "exports": {
     ".": {

@@ -2,7 +2,7 @@ import { useWidgetConfig } from '../providers/WidgetProvider/WidgetProvider.js'
 import type { SwapDataProvider } from '../types/swapDataProvider.js'
 
 const SWAP_DATA_PROVIDER_ERROR =
-  'WidgetConfig.swapDataProvider is required. Install @leapswap/adapter-leapswap and pass createLeapSwapDataProvider() via config.swapDataProvider.'
+  'WidgetConfig.swapDataProvider is required. Install @leapswap/business-integrator and pass createLeapSwapDataProvider() via config.swapDataProvider.'
 
 export function useSwapDataProvider(): SwapDataProvider {
   const { swapDataProvider } = useWidgetConfig()

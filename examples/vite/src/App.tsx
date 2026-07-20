@@ -1,5 +1,5 @@
 import { LeapSwapWidget } from '@leapswap/widget'
-import { createLeapSwapDataProvider } from '@leapswap/adapter-leapswap'
+import { createLeapSwapDataProvider } from '@leapswap/business-integrator'
 
 const swapDataProvider = createLeapSwapDataProvider()
 

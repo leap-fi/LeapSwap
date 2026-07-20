@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@leapswap/adapter-leapswap": "workspace:*",
+    "@leapswap/business-integrator": "workspace:*",
     "@leapswap/wallet-management": "workspace:*",
     "@leapswap/widget": "workspace:*",
     "@mui/material": "^6.4.8",
