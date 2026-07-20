@@ -4,10 +4,7 @@ import type {
   CoinKey,
   ExtendedChain,
 } from '@leapswap/widget-types'
-
-export interface FetchLeapSwapChainsConfig {
-  apiUrl?: string
-}
+import { OPEN_OCEAN_CHAINS_URL } from './openOceanEndpoints.js'
 
 function convertChainData(data: any[]): ExtendedChain[] {
   return data.map((chain) => {
@@ -49,12 +46,9 @@ function convertChainData(data: any[]): ExtendedChain[] {
   })
 }
 
-export async function fetchLeapSwapChains(
-  config: FetchLeapSwapChainsConfig = {}
-): Promise<ExtendedChain[]> {
-  const apiUrl =
-    config.apiUrl ?? 'https://open-api.openocean.finance/v3/widgetv2/chains'
-  const response = await fetch(apiUrl)
+/** Loads supported chains from the built-in OpenOcean endpoint. */
+export async function fetchLeapSwapChains(): Promise<ExtendedChain[]> {
+  const response = await fetch(OPEN_OCEAN_CHAINS_URL)
   if (!response.ok) {
     throw new Error(`Failed to fetch chains: ${response.status}`)
   }

@@ -1,3 +1,9 @@
+import {
+  OPEN_OCEAN_API_V3,
+  OPEN_OCEAN_API_V4,
+  OPEN_OCEAN_NEAR_API,
+} from './openOceanEndpoints.js'
+
 interface LeapSwapToken {
   address: string
   symbol: string
@@ -9,16 +15,14 @@ interface LeapSwapToken {
 }
 
 export interface LeapSwapServiceConfig {
-  apiV3Url?: string
-  apiV4Url?: string
-  nearApiUrl?: string
+  /** Same-chain swap referrer address (OpenOcean-compatible APIs). */
   defaultReferrer?: string
 }
 
 export class LeapSwapService {
-  private readonly apiV3Url: string
-  private readonly apiV4Url: string
-  private readonly nearApiUrl: string
+  private readonly apiV3Url = OPEN_OCEAN_API_V3
+  private readonly apiV4Url = OPEN_OCEAN_API_V4
+  private readonly nearApiUrl = OPEN_OCEAN_NEAR_API
   private readonly defaultReferrer: string
   private solanaRpcUrl = ''
 
@@ -29,10 +33,6 @@ export class LeapSwapService {
   }
 
   constructor(config: LeapSwapServiceConfig = {}) {
-    this.apiV3Url = config.apiV3Url ?? 'https://open-api.openocean.finance/v3'
-    this.apiV4Url = config.apiV4Url ?? 'https://open-api.openocean.finance/v4'
-    this.nearApiUrl =
-      config.nearApiUrl ?? 'https://ethapi.openocean.finance/v1/near'
     this.defaultReferrer =
       config.defaultReferrer ?? '0x3487ef9f9b36547e43268b8f0e2349a226c70b53'
   }

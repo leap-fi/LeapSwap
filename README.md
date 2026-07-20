@@ -20,12 +20,12 @@
 ## 核心能力
 
 
-| 能力    | 说明                                                                             |
-| ----- | ------------------------------------------------------------------------------ |
-| 白标 UI | `theme`、`variant` / `subvariant`、隐藏 `hiddenUI`、自定义 `poweredBy`                 |
-| 数据注入  | `swapDataProvider`（同链报价）、`chainsProvider`（支持链列表）；默认走 OpenOcean，可换自建 API 或自定义实现 |
-| 钱包协作  | 内置多链钱包菜单，或外层包 Provider + `walletConfig.onConnect` 接管连接                         |
-| 跨链路由  | `@leapswap/widget-sdk` 聚合 LiFi、Relay、DeBridge 等协议并执行交易                         |
+| 能力    | 说明                                                                                                 |
+| ----- | -------------------------------------------------------------------------------------------------- |
+| 白标 UI | `theme`、`variant` / `subvariant`、隐藏 `hiddenUI`、自定义 `poweredBy`                                     |
+| 数据注入  | `swapDataProvider`（同链报价）、`chainsProvider`（支持链列表）；开箱默认 OpenOcean 参考实现，自建 API 请实现 `SwapDataProvider` |
+| 钱包协作  | 内置多链钱包菜单，或外层包 Provider + `walletConfig.onConnect` 接管连接                                             |
+| 跨链路由  | `@leapswap/widget-sdk` 聚合 LiFi、Relay、DeBridge 等协议并执行交易                                             |
 
 
 
@@ -33,13 +33,13 @@
 ### 数据层：`swapDataProvider` 与 `chainsProvider`
 
 
-| 注入项                    | 默认行为                                                                 | 如何换成自己的                                                          |
-| ---------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `**swapDataProvider**` | `createLeapSwapDataProvider()` → OpenOcean v3/v4（报价、Token、Gas、RPC 等） | 传 `apiV3Url` / `apiV4Url` 指向自建聚合 API；或自行实现 `SwapDataProvider` 接口 |
-| `**chainsProvider**`   | `createLeapSwapChainsProvider()` → OpenOcean `widgetv2/chains`       | 传 `apiUrl` 换链列表接口；或传 `getChains` 完全自定义（静态列表、自有后端均可）              |
+| 注入项                | 默认（零配置）                                                                | 换成自己的                                              |
+| ------------------ | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| `swapDataProvider` | `createLeapSwapDataProvider()` — 内置 OpenOcean 适配（v3/v4 等细节在包内，不暴露给接入方） | 自行实现 `@leapswap/widget` 的 `SwapDataProvider` 接口并传入 |
+| `chainsProvider`   | `createLeapSwapChainsProvider()` — 内置 OpenOcean 链列表                    | 传 `getChains: () => fetchMyChains()` 完全自定义         |
 
 
-二者为 **必传注入**（或 chains 传静态列表）：Widget 只消费接口，不关心数据来自 OpenOcean 还是你的服务。
+二者为 **必传注入**（或 chains 传静态列表）：Widget 只消费 `SwapDataProvider` / `ChainsProvider` 接口，不关心背后是 OpenOcean 还是你的服务。
 
 ## 仓库结构
 
@@ -52,7 +52,7 @@ LeapSwap/
 │   ├── widget-types/           # @leapswap/widget-types — 共享类型
 │   └── business-integrator/    # @leapswap/business-integrator — Swap / Chains 业务数据层
 ├── examples/
-│   └── vite/                   # 本地集成示例（alias 直连源码，支持 HMR）
+│   └── vite/                   # 本地集成示例
 ├── scripts/                    # 构建 / 发布辅助脚本
 └── README.md
 ```
@@ -68,16 +68,10 @@ import {
   createLeapSwapDataProvider,
 } from '@leapswap/business-integrator'
 
-const swapDataProvider = createLeapSwapDataProvider({
-  // 可选：默认 OpenOcean，改为自己的聚合 API
-  // apiV3Url: 'https://your-api.example.com/v3',
-  // apiV4Url: 'https://your-api.example.com/v4',
-})
-const chainsProvider = createLeapSwapChainsProvider({
-  // 可选：默认 OpenOcean chains 接口
-  // apiUrl: 'https://your-api.example.com/v3/widgetv2/chains',
-  // 或完全自定义：getChains: () => fetchMyChains(),
-})
+const swapDataProvider = createLeapSwapDataProvider()
+const chainsProvider = createLeapSwapChainsProvider()
+// 自建 API：实现 SwapDataProvider 后 swapDataProvider={myProvider}
+// 自定义链列表：createLeapSwapChainsProvider({ getChains: () => fetchMyChains() })
 
 export function App() {
   return (
@@ -111,7 +105,7 @@ export function App() {
 - `**config.poweredBy**` — 页脚品牌与跳转链接（`'default'` / `'jumper'` 或自定义 `{ name, url }`）
 - `**config.hiddenUI**` — 隐藏钱包菜单、历史、语言等模块
 - `**walletConfig**` — WalletConnect / MetaMask / Coinbase 参数；`usePartialWalletManagement` 支持内外钱包混用
-- `**swapDataProvider` / `chainsProvider**` — 默认 OpenOcean；可改 URL 或自定义实现（见上文「数据层」）
+- `swapDataProvider` **/** `chainsProvider` — 默认零配置 OpenOcean 参考实现；自建请实现 `SwapDataProvider` 或 `getChains`（见上文「数据层」）
 
 
 

@@ -12,7 +12,4 @@ export {
   type LeapSwapChainsProvider,
   type LeapSwapChainsProviderConfig,
 } from './createLeapSwapChainsProvider.js'
-export {
-  fetchLeapSwapChains,
-  type FetchLeapSwapChainsConfig,
-} from './fetchLeapSwapChains.js'
+export { fetchLeapSwapChains } from './fetchLeapSwapChains.js'

@@ -1,13 +1,10 @@
 import type { ExtendedChain } from '@leapswap/widget-types'
-import {
-  fetchLeapSwapChains,
-  type FetchLeapSwapChainsConfig,
-} from './fetchLeapSwapChains.js'
+import { fetchLeapSwapChains } from './fetchLeapSwapChains.js'
 
 export type LeapSwapChainsProvider = () => Promise<ExtendedChain[]>
 
-export interface LeapSwapChainsProviderConfig extends FetchLeapSwapChainsConfig {
-  /** Fully replace chain loading (e.g. custom backend or static list). */
+export interface LeapSwapChainsProviderConfig {
+  /** Replace default OpenOcean chain list (e.g. your own backend or static list). */
   getChains?: LeapSwapChainsProvider
 }
 
@@ -17,5 +14,5 @@ export function createLeapSwapChainsProvider(
   if (config.getChains) {
     return config.getChains
   }
-  return () => fetchLeapSwapChains({ apiUrl: config.apiUrl })
+  return () => fetchLeapSwapChains()
 }

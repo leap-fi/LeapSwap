@@ -3,7 +3,10 @@ import {
   type LeapSwapServiceConfig,
 } from './LeapSwapService.js'
 
-export type LeapSwapDataProviderConfig = LeapSwapServiceConfig
+export type LeapSwapDataProviderConfig = {
+  /** Same-chain swap referrer address when using the default OpenOcean adapter. */
+  defaultReferrer?: string
+}
 
 export function createLeapSwapDataProvider(
   config: LeapSwapDataProviderConfig = {}
