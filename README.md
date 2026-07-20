@@ -3,8 +3,6 @@
 可配置的跨链 Swap / Bridge Widget SDK。  
 目标：少量配置即可搭建交易界面，并支持自定义手续费收款地址与 RPC。
 
-> **重要**：请先阅读根目录 [`NOTICE.md`](./NOTICE.md)（License 与 OpenOcean 硬编码项提醒）。
-
 ## 仓库结构
 
 ```
