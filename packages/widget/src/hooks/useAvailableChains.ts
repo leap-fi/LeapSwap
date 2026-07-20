@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { useWidgetConfig } from '../providers/WidgetProvider/WidgetProvider.js'
 import { isItemAllowed } from '../utils/item.js'
 import { DEFAULT_CHAIN_IDS } from '../config/defaultChainIds.js';
+import { useIntegratorCacheKey } from './useIntegratorCacheKey.js'
 
 export type GetChainById = (
   chainId?: number,
@@ -15,11 +16,14 @@ export type GetChainById = (
 const supportedChainTypes: ChainType[] = [ChainType.EVM, ChainType.SVM, ChainType.UTXO]
 
 export const useAvailableChains = (chainTypes?: ChainType[]) => {
-  const { chains } = useWidgetConfig()
+  const { chains, chainsProvider } = useWidgetConfig()
+  const integratorCacheKey = useIntegratorCacheKey()
   // const { providers } = useHasExternalWalletProvider();
   const { data, isLoading } = useQuery({
     queryKey: [
       'chains',
+      integratorCacheKey,
+      chainsProvider,
       // providers,
       chains?.types,
       chains?.allow,

@@ -4,7 +4,7 @@ import {
   OPEN_OCEAN_NEAR_API,
 } from './openOceanEndpoints.js'
 
-interface LeapSwapToken {
+interface OpenOceanToken {
   address: string
   symbol: string
   decimals: number
@@ -14,12 +14,12 @@ interface LeapSwapToken {
   chainId?: number
 }
 
-export interface LeapSwapServiceConfig {
+export interface OpenOceanSwapServiceConfig {
   /** Same-chain swap referrer address (OpenOcean-compatible APIs). */
   defaultReferrer?: string
 }
 
-export class LeapSwapService {
+export class OpenOceanSwapService {
   private readonly apiV3Url = OPEN_OCEAN_API_V3
   private readonly apiV4Url = OPEN_OCEAN_API_V4
   private readonly nearApiUrl = OPEN_OCEAN_NEAR_API
@@ -32,18 +32,18 @@ export class LeapSwapService {
     20000000000006: 'near',
   }
 
-  constructor(config: LeapSwapServiceConfig = {}) {
+  constructor(config: OpenOceanSwapServiceConfig = {}) {
     this.defaultReferrer =
       config.defaultReferrer ?? '0x3487ef9f9b36547e43268b8f0e2349a226c70b53'
   }
 
   private getChainName(chainId: string | number): string {
-    return LeapSwapService.CHAIN_ID_MAP[chainId] || chainId.toString()
+    return OpenOceanSwapService.CHAIN_ID_MAP[chainId] || chainId.toString()
   }
 
   private getApiUrl(chainId: string | number): string {
     const chainName = this.getChainName(chainId)
-    return Object.keys(LeapSwapService.CHAIN_ID_MAP).includes(chainId.toString())
+    return Object.keys(OpenOceanSwapService.CHAIN_ID_MAP).includes(chainId.toString())
       ? `${this.apiV4Url}/${chainName}`
       : `${this.apiV4Url}/${chainId}`
   }
@@ -313,7 +313,7 @@ export class LeapSwapService {
         throw new Error('Failed to fetch token list')
       }
     }
-    return data.data.map((token: LeapSwapToken) => {
+    return data.data.map((token: OpenOceanToken) => {
       let address = token.address
       if (
         chain === '1151111081099710' &&
@@ -421,7 +421,7 @@ export class LeapSwapService {
     }
 
     return data.data.reduce(
-      (acc: Record<string, string>, token: LeapSwapToken) => {
+      (acc: Record<string, string>, token: OpenOceanToken) => {
         if (token.address && token.usd) {
           if (chain === '20000000000001') {
             acc.bitcoin = token.usd

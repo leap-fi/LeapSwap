@@ -7,10 +7,12 @@ import { withDedupe } from '../utils/withDedupe.js'
 export type ChainsProvider = () => Promise<ExtendedChain[]>
 
 export const getChains = async (): Promise<ExtendedChain[]> => {
-  const { chainsProvider, chains } = config.get()
+  const { chainsProvider, chains, integratorDataKey, integrator } = config.get()
 
   if (chainsProvider) {
-    return withDedupe(() => chainsProvider(), { id: 'config.chainsProvider' })
+    return withDedupe(() => chainsProvider(), {
+      id: `chains:${integrator}:${integratorDataKey ?? 'default'}`,
+    })
   }
 
   if (chains.length) {
@@ -19,7 +21,7 @@ export const getChains = async (): Promise<ExtendedChain[]> => {
 
   throw new SDKError(
     new ValidationError(
-      'Missing chains data. Pass chainsProvider (e.g. createLeapSwapChainsProvider from @leapswap/business-integrator) or a static chains array in createConfig().'
+      'Missing chains data. Pass chainsProvider from your integrator or a static chains array in createConfig().'
     )
   )
 }

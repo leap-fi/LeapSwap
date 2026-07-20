@@ -1,11 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSwapDataProvider } from './useSwapDataProvider.js'
+import { useIntegratorCacheKey } from './useIntegratorCacheKey.js'
 import type { TokenAmount } from '../types/token.js'
 
 export const useTokenPrice = (chainId?: number, token?: TokenAmount) => {
   const swapDataProvider = useSwapDataProvider()
+  const integratorCacheKey = useIntegratorCacheKey()
   const { data: price, isLoading } = useQuery({
-    queryKey: ['token-price', chainId, token?.address],
+    queryKey: [
+      'token-price',
+      integratorCacheKey,
+      chainId,
+      token?.address,
+      swapDataProvider,
+    ],
     queryFn: async () => {
       if (!chainId || !token?.address) {
         return undefined

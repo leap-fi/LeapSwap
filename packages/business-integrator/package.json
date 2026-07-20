@@ -1,7 +1,7 @@
 {
   "name": "@leapswap/business-integrator",
   "version": "0.1.0",
-  "description": "Business integrator swap data provider for @leapswap/widget",
+  "description": "OpenOcean reference integrator for @leapswap/widget (SwapDataProvider / ChainsProvider)",
   "type": "module",
   "exports": {
     ".": {

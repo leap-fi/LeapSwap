@@ -19,6 +19,7 @@ import { getChainTypeFromAddress } from '../utils/chainType.js'
 import { DebridgeLogo } from '../icons/debridgeLogo.js'
 import { LeapSwapLogo } from '../icons/leapswapLogo.js'
 import { useChain } from './useChain.js'
+import { useIntegratorCacheKey } from './useIntegratorCacheKey.js'
 import { useDebouncedWatch } from './useDebouncedWatch.js'
 import { useGasPrice } from './useGasPrice.js'
 import { useGasRefuel } from './useGasRefuel.js'
@@ -39,6 +40,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
 
   const { subvariant, sdkConfig, fee, feeConfig, referrer } = useWidgetConfig()
   const swapDataProvider = useSwapDataProvider()
+  const integratorCacheKey = useIntegratorCacheKey()
   const setExecutableRoute = useSetExecutableRoute()
   const queryClient = useQueryClient()
   const emitter = useWidgetEvents()
@@ -124,6 +126,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
 
   const queryKey = [
     'routes',
+    integratorCacheKey,
     account.address,
     fromChain?.id as number,
     fromToken?.address as string,
@@ -147,6 +150,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
     feeConfig?.fee || fee,
     !!isBatchingSupported,
     observableRoute?.id,
+    swapDataProvider,
   ] as const
 
   const { data, isLoading, isFetching, isFetched, dataUpdatedAt, refetch } =

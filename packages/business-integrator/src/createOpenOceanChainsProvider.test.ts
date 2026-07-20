@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createLeapSwapChainsProvider } from './createLeapSwapChainsProvider.js'
+import { createOpenOceanChainsProvider } from './createOpenOceanChainsProvider.js'
 
-describe('createLeapSwapChainsProvider', () => {
+describe('createOpenOceanChainsProvider', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
@@ -26,15 +26,15 @@ describe('createLeapSwapChainsProvider', () => {
     vi.restoreAllMocks()
   })
 
-  it('fetches chains from the default LeapSwap API', async () => {
-    const getChains = createLeapSwapChainsProvider()
+  it('fetches chains from the built-in OpenOcean endpoint', async () => {
+    const getChains = createOpenOceanChainsProvider()
     const chains = await getChains()
     expect(chains[0]?.id).toBe(1)
     expect(chains[0]?.name).toBe('Ethereum')
   })
 
   it('allows a full getChains override', async () => {
-    const getChains = createLeapSwapChainsProvider({
+    const getChains = createOpenOceanChainsProvider({
       getChains: async () => [{ id: 42, name: 'Custom' } as any],
     })
     const chains = await getChains()

@@ -70,7 +70,7 @@ export type {
 export { UTXO } from './core/UTXO/UTXO.js'
 export { isUTXO } from './core/UTXO/types.js'
 export type { UTXOProvider, UTXOProviderOptions } from './core/UTXO/types.js'
-export { createConfig } from './createConfig.js'
+export { createConfig, createChainsConfig } from './createConfig.js'
 export { checkPackageUpdates } from './utils/checkPackageUpdates.js'
 export { convertQuoteToRoute } from './utils/convertQuoteToRoute.js'
 export { fetchTxErrorDetails } from './utils/fetchTxErrorDetails.js'

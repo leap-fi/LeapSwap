@@ -47,7 +47,7 @@ function convertChainData(data: any[]): ExtendedChain[] {
 }
 
 /** Loads supported chains from the built-in OpenOcean endpoint. */
-export async function fetchLeapSwapChains(): Promise<ExtendedChain[]> {
+export async function fetchOpenOceanChains(): Promise<ExtendedChain[]> {
   const response = await fetch(OPEN_OCEAN_CHAINS_URL)
   if (!response.ok) {
     throw new Error(`Failed to fetch chains: ${response.status}`)

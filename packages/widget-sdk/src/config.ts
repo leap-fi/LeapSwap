@@ -25,14 +25,41 @@ export const config = (() => {
       return _config
     },
     set(options: SDKConfig) {
-      const { chains, providers, rpcUrls, chainsProvider, ...otherOptions } =
-        options
+      const {
+        chains,
+        providers,
+        rpcUrls,
+        chainsProvider,
+        integratorDataKey,
+        ...otherOptions
+      } = options
+
+      const integratorDataKeyChanged =
+        integratorDataKey !== undefined &&
+        _config.integratorDataKey !== integratorDataKey
+
       Object.assign(_config, otherOptions)
+
+      if (integratorDataKey !== undefined) {
+        _config.integratorDataKey = integratorDataKey
+      }
+
+      if (integratorDataKeyChanged) {
+        _config.chains = []
+        _loading = undefined
+      }
+
       if (chains) {
         this.setChains(chains)
       }
-      if (chainsProvider) {
+      if (chainsProvider !== undefined) {
+        const chainsProviderChanged =
+          _config.chainsProvider !== chainsProvider
         _config.chainsProvider = chainsProvider
+        if (chainsProviderChanged) {
+          _config.chains = []
+          _loading = undefined
+        }
       }
       if (providers) {
         this.setProviders(providers)

@@ -18,6 +18,7 @@ export interface SDKBaseConfig {
   rpcUrls: RPCUrls
   chains: ExtendedChain[]
   chainsProvider?: ChainsProvider
+  integratorDataKey?: string
   disableVersionCheck?: boolean
   widgetVersion?: string
   preloadChains: boolean

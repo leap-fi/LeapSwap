@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LeapSwapService } from './LeapSwapService.js'
+import { OpenOceanSwapService } from './OpenOceanSwapService.js'
 
-describe('LeapSwapService', () => {
-  let service: LeapSwapService
+describe('OpenOceanSwapService', () => {
+  let service: OpenOceanSwapService
 
   beforeEach(() => {
-    service = new LeapSwapService()
+    service = new OpenOceanSwapService()
     vi.resetModules()
     vi.stubGlobal(
       'fetch',

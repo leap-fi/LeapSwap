@@ -1,15 +1,15 @@
 export {
-  LeapSwapService,
-  type LeapSwapServiceConfig,
-} from './LeapSwapService.js'
+  OpenOceanSwapService,
+  type OpenOceanSwapServiceConfig,
+} from './OpenOceanSwapService.js'
 export {
-  createLeapSwapDataProvider,
-  type LeapSwapDataProvider,
-  type LeapSwapDataProviderConfig,
-} from './createLeapSwapDataProvider.js'
+  createOpenOceanDataProvider,
+  type OpenOceanDataProvider,
+  type OpenOceanDataProviderConfig,
+} from './createOpenOceanDataProvider.js'
 export {
-  createLeapSwapChainsProvider,
-  type LeapSwapChainsProvider,
-  type LeapSwapChainsProviderConfig,
-} from './createLeapSwapChainsProvider.js'
-export { fetchLeapSwapChains } from './fetchLeapSwapChains.js'
+  createOpenOceanChainsProvider,
+  type OpenOceanChainsProvider,
+  type OpenOceanChainsProviderConfig,
+} from './createOpenOceanChainsProvider.js'
+export { fetchOpenOceanChains } from './fetchOpenOceanChains.js'

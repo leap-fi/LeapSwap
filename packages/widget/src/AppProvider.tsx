@@ -1,4 +1,3 @@
-import { QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 import { Fragment } from 'react'
 import {
@@ -7,11 +6,12 @@ import {
   useInRouterContext,
 } from 'react-router-dom'
 import { PageEntered } from './components/PageEntered.js'
-import { queryClient } from './config/queryClient.js'
+import { IntegratorDataSourceSync } from './providers/IntegratorDataSourceSync.js'
 import { I18nProvider } from './providers/I18nProvider/I18nProvider.js'
 import { ThemeProvider } from './providers/ThemeProvider/ThemeProvider.js'
 import { WalletProvider } from './providers/WalletProvider/WalletProvider.js'
 import { NearProvider } from './providers/WalletProvider/NearProvider.js'
+import { WidgetQueryClientProvider } from './providers/WidgetQueryClientProvider.js'
 import {
   WidgetProvider,
   useWidgetConfig,
@@ -26,8 +26,9 @@ export const AppProvider: React.FC<PropsWithChildren<WidgetConfigProps>> = ({
   formRef,
 }) => {
   return (
-    <QueryClientProvider client={queryClient}>
+    <WidgetQueryClientProvider>
       <WidgetProvider config={config}>
+        <IntegratorDataSourceSync />
         <I18nProvider>
           <ThemeProvider>
             <NearProvider>
@@ -40,7 +41,7 @@ export const AppProvider: React.FC<PropsWithChildren<WidgetConfigProps>> = ({
           </ThemeProvider>
         </I18nProvider>
       </WidgetProvider>
-    </QueryClientProvider>
+    </WidgetQueryClientProvider>
   )
 }
 

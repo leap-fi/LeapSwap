@@ -1,17 +1,14 @@
 import {
-  LeapSwapService,
-  type LeapSwapServiceConfig,
-} from './LeapSwapService.js'
+  OpenOceanSwapService,
+  type OpenOceanSwapServiceConfig,
+} from './OpenOceanSwapService.js'
 
-export type LeapSwapDataProviderConfig = {
-  /** Same-chain swap referrer address when using the default OpenOcean adapter. */
-  defaultReferrer?: string
-}
+export type OpenOceanDataProviderConfig = OpenOceanSwapServiceConfig
 
-export function createLeapSwapDataProvider(
-  config: LeapSwapDataProviderConfig = {}
+export function createOpenOceanDataProvider(
+  config: OpenOceanDataProviderConfig = {}
 ) {
-  const service = new LeapSwapService(config)
+  const service = new OpenOceanSwapService(config)
 
   return {
     getQuote: service.getQuote.bind(service),
@@ -25,6 +22,6 @@ export function createLeapSwapDataProvider(
   }
 }
 
-export type LeapSwapDataProvider = ReturnType<
-  typeof createLeapSwapDataProvider
+export type OpenOceanDataProvider = ReturnType<
+  typeof createOpenOceanDataProvider
 >

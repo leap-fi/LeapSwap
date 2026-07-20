@@ -243,6 +243,11 @@ export interface WidgetConfig {
   fromAmount?: number | string
   toAmount?: number | string
   formUpdateKey?: string
+  /**
+   * Bust integrator-related caches when swapping swapDataProvider / chainsProvider.
+   * Example: pass `'openocean' | 'custom'` when demoing multiple backends.
+   */
+  dataSourceKey?: string
 
   contractCalls?: ContractCall[]
   contractComponent?: ReactNode
@@ -299,12 +304,12 @@ export interface WidgetConfig {
   routeLabels?: RouteLabelRule[]
   /**
    * Same-chain swap data source (quotes, tokens, gas, RPC, etc.).
-   * Provide via @leapswap/business-integrator or a custom implementation.
+   * Implement in your integrator package (see @leapswap/business-integrator for OpenOcean reference).
    */
   swapDataProvider?: SwapDataProvider
   /**
    * Supported chains data source.
-   * Provide via @leapswap/business-integrator or override with a custom getChains().
+   * Implement in your integrator package (see @leapswap/business-integrator for OpenOcean reference).
    */
   chainsProvider?: ChainsProvider
 }
