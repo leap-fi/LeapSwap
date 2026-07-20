@@ -68,7 +68,7 @@ export const UTXOListItemButton = ({
         <Avatar
           src={
             ecosystemSelection
-              ? 'https://s3.leapswap.finance/token_logos/logos/1745548017222_7956109406125961.svg'
+              ? 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png'
               : getConnectorIcon(connector as Connector)
           }
           alt={connectorDisplayName}

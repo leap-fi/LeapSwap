@@ -68,7 +68,7 @@ export const EVMListItemButton = ({
         <Avatar
           src={
             ecosystemSelection
-              ? 'https://s3.leapswap.finance/token_logos/logos/1745547950692_04886906894908105.svg'
+              ? 'https://assets.coingecko.com/coins/images/279/small/ethereum.png'
               : getConnectorIcon(connector as Connector)
           }
           alt={connectorDisplayName}

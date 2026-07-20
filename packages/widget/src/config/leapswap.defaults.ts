@@ -22,10 +22,3 @@ export const LEAPSWAP_CROSS_CHAIN_FEE_RECEIVER_SOLANA =
 /** @deprecated Use config.referrer.address — LeapSwap same-chain referrer fallback */
 export const LEAPSWAP_DEFAULT_REFERRER =
   '0x3487ef9f9b36547e43268b8f0e2349a226c70b53'
-
-/** LeapSwap public API base (aggregation backend; keep unless you proxy) */
-export const LEAPSWAP_API_HINTS = {
-  swapApiV4: 'https://open-api.leapswap.finance/v4',
-  docsReferrerFee:
-    'https://docs.leapswap.finance/docs/swap-api/v4 (referrer / referrerFee)',
-} as const

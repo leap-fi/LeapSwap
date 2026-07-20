@@ -60,7 +60,7 @@ export const SVMListItemButton = ({
         <Avatar
           src={
             ecosystemSelection
-              ? 'https://s3.leapswap.finance/token_logos/logos/1745547977998_539267174675113.svg'
+              ? 'https://assets.coingecko.com/coins/images/4128/small/solana.png'
               : walletAdapter.icon
           }
           alt={connectorDisplayName}
