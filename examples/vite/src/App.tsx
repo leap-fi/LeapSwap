@@ -13,9 +13,12 @@ export function App() {
       integrator="vite-example"
       swapDataProvider={swapDataProvider}
       chainsProvider={chainsProvider}
+      walletConfig={{
+        onConnect: () => console.log('open your walletModal'),  // 把连接引导到外层 UI
+      }}
       config={{
         buildUrl: false,
-        // Custom footer branding (optional):
+        hiddenUI: ['walletMenu'],  // 可选：彻底隐藏 Widget 内钱包入口
         poweredBy: { name: 'Your Brand', url: 'https://example.com' },
         subvariant: 'split',
         subvariantOptions: {
