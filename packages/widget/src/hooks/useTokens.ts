@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useWidgetConfig } from '../providers/WidgetProvider/WidgetProvider.js'
-import { LeapSwapService } from '../services/LeapSwapService.js'
+import { useSwapDataProvider } from './useSwapDataProvider.js'
 import type { TokenAmount } from '../types/token.js'
 import { useChains } from './useChains.js'
 
@@ -17,13 +17,14 @@ export const isNativeToken = (token: string) => {
 
 export const useTokens = (selectedChainId?: number) => {
   const { tokens: configTokens } = useWidgetConfig()
+  const swapDataProvider = useSwapDataProvider()
   const { data, isLoading } = useQuery({
     queryKey: ['tokens', selectedChainId],
     queryFn: async () => {
       if (!selectedChainId) {
         return { tokens: {} as Record<number, TokenAmount[]> }
       }
-      const tokens = await LeapSwapService.getTokenList(
+      const tokens = await swapDataProvider.getTokenList(
         selectedChainId.toString()
       )
       tokens.forEach((token: any) => {

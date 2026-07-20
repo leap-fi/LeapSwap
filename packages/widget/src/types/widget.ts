@@ -33,6 +33,7 @@ import type {
   LanguageResources,
 } from '../providers/I18nProvider/types.js'
 import type { DefaultFieldValues } from '../stores/form/types.js'
+import type { SwapDataProvider } from './swapDataProvider.js'
 
 export type WidgetVariant = 'compact' | 'wide' | 'drawer'
 export type WidgetSubvariant =
@@ -284,6 +285,11 @@ export interface WidgetConfig {
    * Custom labels/badges to show on routes based on specified rules
    */
   routeLabels?: RouteLabelRule[]
+  /**
+   * Same-chain swap data source (quotes, tokens, gas, RPC, etc.).
+   * Provide via @leapswap/adapter-leapswap or a custom implementation.
+   */
+  swapDataProvider?: SwapDataProvider
 }
 
 export interface FormFieldOptions {

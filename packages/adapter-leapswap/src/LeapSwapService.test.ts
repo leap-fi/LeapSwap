@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { LeapSwapService } from './LeapSwapService.js'
 
 describe('LeapSwapService', () => {
+  let service: LeapSwapService
+
   beforeEach(() => {
+    service = new LeapSwapService()
     vi.resetModules()
     vi.stubGlobal(
       'fetch',
@@ -17,14 +21,13 @@ describe('LeapSwapService', () => {
   })
 
   it('throws a fallback error when swap returns a non-200 business code with an empty error', async () => {
-    const { LeapSwapService } = await import('./LeapSwapService.js')
     vi.mocked(globalThis.fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ code: 500, error: '' }),
     } satisfies Partial<Response> as Response)
 
     await expect(
-      LeapSwapService.getSwapQuote({
+      service.getSwapQuote({
         chain: '8453',
         inTokenAddress: '0x0000000000000000000000000000000000000001',
         inTokenSymbol: 'ETH',
@@ -37,14 +40,13 @@ describe('LeapSwapService', () => {
   })
 
   it('throws the API error message when quote returns a non-200 business code', async () => {
-    const { LeapSwapService } = await import('./LeapSwapService.js')
     vi.mocked(globalThis.fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ code: 500, error: 'Router unavailable' }),
     } satisfies Partial<Response> as Response)
 
     await expect(
-      LeapSwapService.getQuote({
+      service.getQuote({
         chain: '8453',
         inTokenAddress: '0x0000000000000000000000000000000000000001',
         inTokenSymbol: 'ETH',

@@ -15,6 +15,7 @@ import { useConfig, useWalletClient } from 'wagmi'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { shallow } from 'zustand/shallow'
 import { executeRoute } from '../services/ExecuteRoute.js'
+import { useSwapDataProvider } from './useSwapDataProvider.js'
 import {
   useRouteExecutionStore,
   useRouteExecutionStoreContext,
@@ -52,6 +53,7 @@ export const useRouteExecution = ({
   // const { wallet: solanaWallet } = useWallet()
   const resumedAfterMount = useRef(false)
   const emitter = useWidgetEvents()
+  const swapDataProvider = useSwapDataProvider()
   const routeExecutionStoreContext = useRouteExecutionStoreContext()
   const routeExecution = useRouteExecutionStore(
     (state) => state.routes[routeId]
@@ -155,6 +157,7 @@ export const useRouteExecution = ({
         onOpenWalletMenu: openWalletMenu,
         solanaWallet: solanaWallet,
         nearWallet,
+        swapDataProvider,
       })
     },
     onMutate: () => {
@@ -192,6 +195,7 @@ export const useRouteExecution = ({
         onDisconnect: disconnect,
         onOpenWalletMenu: openWalletMenu,
         nearWallet,
+        swapDataProvider,
       })
     },
     onMutate: () => {

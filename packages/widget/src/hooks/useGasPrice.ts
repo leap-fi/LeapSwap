@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { LeapSwapService } from '../services/LeapSwapService.js'
+import { useSwapDataProvider } from './useSwapDataProvider.js'
 import { useSettings } from '../stores/settings/useSettings.js'
 
 const gasKey: any = {
@@ -9,9 +9,10 @@ const gasKey: any = {
 }
 export const useGasPrice = (chainName: string) => {
   const { gasPrice } = useSettings(['gasPrice'])
+  const swapDataProvider = useSwapDataProvider()
   const { data, isLoading } = useQuery({
     queryKey: ['gasPrice'],
-    queryFn: () => LeapSwapService.getGasPrice(chainName.toLowerCase()),
+    queryFn: () => swapDataProvider.getGasPrice(chainName.toLowerCase()),
   })
   const _gasPrice = data?.[gasKey[gasPrice || 'normal']]
   return {

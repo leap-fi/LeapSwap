@@ -8,7 +8,7 @@ import { useConfig } from 'wagmi'
 import { getWalletClient } from 'wagmi/actions'
 import { getCrossChainQuote } from '../cross/crossChainQuote.js'
 import { useWidgetConfig } from '../providers/WidgetProvider/WidgetProvider.js'
-import { LeapSwapService } from '../services/LeapSwapService.js'
+import { useSwapDataProvider } from './useSwapDataProvider.js'
 import { useFieldValues } from '../stores/form/useFieldValues.js'
 import { useSetExecutableRoute } from '../stores/routes/useSetExecutableRoute.js'
 import { useSettings } from '../stores/settings/useSettings.js'
@@ -37,6 +37,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
   const { wallet: solanaWallet } = useWallet()
 
   const { subvariant, sdkConfig, fee, feeConfig, referrer } = useWidgetConfig()
+  const swapDataProvider = useSwapDataProvider()
   const setExecutableRoute = useSetExecutableRoute()
   const queryClient = useQueryClient()
   const emitter = useWidgetEvents()
@@ -261,9 +262,9 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
               quoteResult = null // Or handle error appropriately
             }
           } else {
-            // Use LeapSwapService for same-chain swaps
+            // Use swap data provider for same-chain swaps
             if (account.address) {
-              quoteResult = await LeapSwapService.getSwapQuote({
+              quoteResult = await swapDataProvider.getSwapQuote({
                 chain: fromChainId.toString(),
                 inTokenSymbol: fromToken?.symbol || '',
                 inTokenAddress: fromTokenAddress,
@@ -279,7 +280,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
               })
             } else {
               // Use getQuote if account is not connected (view mode)
-              quoteResult = await LeapSwapService.getQuote({
+              quoteResult = await swapDataProvider.getQuote({
                 chain: fromChainId.toString(),
                 inTokenSymbol: fromToken?.symbol || '',
                 inTokenAddress: fromTokenAddress,
@@ -301,7 +302,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
           }
           // biome-ignore lint/complexity/useOptionalChain: <explanation>
           const data = (quoteResult && quoteResult.data) || {}
-          // minOutAmount calculation is now handled within DebridgeService or LeapSwapService
+          // minOutAmount calculation is now handled within DebridgeService or swap data provider
           const isBridge = quoteResult.isBridge
           let toAmountMin = '0'
           if (data?.minOutAmount && Number(data.minOutAmount) > 0) {

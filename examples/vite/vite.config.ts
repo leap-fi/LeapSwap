@@ -7,6 +7,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
 // Dev: resolve workspace packages to source (no prebuild). Publish still needs build.
 const workspaceAliases = {
+  '@leapswap/adapter-leapswap': path.join(
+    root,
+    'packages/adapter-leapswap/src'
+  ),
   '@leapswap/widget': path.join(root, 'packages/widget/src'),
   '@leapswap/widget-sdk': path.join(root, 'packages/widget-sdk/src'),
   '@leapswap/wallet-management': path.join(

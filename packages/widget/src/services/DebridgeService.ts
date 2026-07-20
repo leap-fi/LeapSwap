@@ -20,7 +20,7 @@ interface SwapParams {
   fromMsg: Asset
   toMsg: Asset
   inAmount: string
-  slippage_tolerance: string | number // Note: LeapSwapService uses number, keep as is or unify
+  slippage_tolerance: string | number
   account: string // Debridge requires account
   receiver?: string // Debridge requires receiver
 }

@@ -1,6 +1,6 @@
 import type { TokensResponse } from '@leapswap/widget-sdk'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { LeapSwapService } from '../services/LeapSwapService.js'
+import { useSwapDataProvider } from './useSwapDataProvider.js'
 import type { TokenAmount } from '../types/token.js'
 
 export const useTokenSearch = (
@@ -9,10 +9,11 @@ export const useTokenSearch = (
   enabled?: boolean
 ) => {
   const queryClient = useQueryClient()
+  const swapDataProvider = useSwapDataProvider()
   const { data, isLoading } = useQuery({
     queryKey: ['token-search', chainId, tokenQuery],
     queryFn: async ({ queryKey: [, chainId, tokenQuery], signal }) => {
-      const token = await LeapSwapService.getTokenInfo(
+      const token = await swapDataProvider.getTokenInfo(
         chainId?.toString() || '',
         tokenQuery as string
       )

@@ -14,7 +14,7 @@ import { useSettingsStore } from '../stores/settings/useSettingsStore.js'
 import { sendAndConfirmSolanaTransaction } from './SendAndConfirmSolanaTransaction.js'
 import { adaptBitcoinWallet } from '@relayprotocol/relay-bitcoin-wallet-adapter'
 import * as bitcoin from 'bitcoinjs-lib';
-import { LeapSwapService } from './LeapSwapService.js'
+import type { SwapDataProvider } from '../types/swapDataProvider.js'
 
 type DynamicSignPsbtParams = {
   allowedSighash: number[];
@@ -263,6 +263,7 @@ interface ExecuteRouteOptions {
   solanaWallet?: any
   // Near wallet-selector 实例从 React 层通过 options 传入，避免在此文件中直接调用 Hook
   nearWallet?: any
+  swapDataProvider: SwapDataProvider
 }
 
 interface ExtendedLeapSwapStep extends LeapSwapStep {
@@ -297,7 +298,7 @@ async function executeSolanaSwap(
       throw new Error('Wallet not connected or connector not initialized')
     }
 
-    const rpcUrl = await LeapSwapService.getRpcUrl()
+    const rpcUrl = await options.swapDataProvider.getRpcUrl()
     let transaction: any = ''
     const connection = new Connection(rpcUrl)
 
