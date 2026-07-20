@@ -101,6 +101,10 @@ importers:
         version: 6.4.3(@types/node@22.20.1)(jiti@2.6.1)(terser@5.49.0)(yaml@2.9.0)
 
   packages/business-integrator:
+    dependencies:
+      '@leapswap/widget-types':
+        specifier: workspace:*
+        version: link:../widget-types
     devDependencies:
       typescript:
         specifier: ^5.8.2

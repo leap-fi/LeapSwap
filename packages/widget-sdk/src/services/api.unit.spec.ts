@@ -346,13 +346,15 @@ describe('ApiService', () => {
   })
 
   describe('getChains', () => {
-    describe('and the backend call is successful', () => {
-      it('call the server once', async () => {
-        const chains = await ApiService.getChains()
-
-        expect(chains[0]?.id).toEqual(1)
-        expect(mockedFetch).toHaveBeenCalledTimes(1)
+    it('uses chainsProvider from config', async () => {
+      config.set({
+        integrator: _config.integrator,
+        chainsProvider: async () => [{ id: 1 } as any],
       })
+      const { getChains } = await import('./chains.js')
+      const chains = await getChains()
+      expect(chains[0]?.id).toEqual(1)
+      expect(mockedFetch).not.toHaveBeenCalled()
     })
   })
 

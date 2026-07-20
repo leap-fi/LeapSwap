@@ -1,5 +1,5 @@
 import { config } from './config.js'
-import { getChains } from './services/api.js'
+import { getChains } from './services/chains.js'
 import type { SDKConfig } from './types/internal.js'
 import { checkPackageUpdates } from './utils/checkPackageUpdates.js'
 import { name, version } from './version.js'
@@ -7,7 +7,7 @@ import { name, version } from './version.js'
 function createBaseConfig(options: SDKConfig) {
   if (!options.integrator) {
     throw new Error(
-      'Integrator not found. Please see documentation https://leapswap.finance/api'
+      'Missing required "integrator" option. Pass your app or project identifier when calling createConfig().'
     )
   }
   const _config = config.set(options)
@@ -26,7 +26,7 @@ export async function createChainsConfig() {
 
 export function createConfig(options: SDKConfig) {
   const _config = createBaseConfig(options)
-  if (_config.preloadChains) {
+  if (_config.preloadChains && (_config.chainsProvider || !_config.chains.length)) {
     createChainsConfig()
   }
   return _config

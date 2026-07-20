@@ -75,7 +75,6 @@ export { checkPackageUpdates } from './utils/checkPackageUpdates.js'
 export { convertQuoteToRoute } from './utils/convertQuoteToRoute.js'
 export { fetchTxErrorDetails } from './utils/fetchTxErrorDetails.js'
 export {
-  getChains,
   getConnections,
   getContractCallsQuote,
   getGasRecommendation,
@@ -89,6 +88,7 @@ export {
   getTools,
   getTransactionHistory,
 } from './services/api.js'
+export { getChains, type ChainsProvider } from './services/chains.js'
 export {
   getTokenBalance,
   getTokenBalances,

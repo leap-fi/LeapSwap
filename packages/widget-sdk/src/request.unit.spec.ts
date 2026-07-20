@@ -132,7 +132,7 @@ describe('request new', () => {
       ).rejects.toThrowError(
         new SDKError(
           new ValidationError(
-            'You need to provide the Integrator property. Please see documentation https://leapswap.finance/api'
+            'Missing required "integrator" config. Set integrator when initializing the SDK (createConfig).'
           )
         )
       )

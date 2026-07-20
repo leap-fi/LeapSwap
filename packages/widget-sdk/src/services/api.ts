@@ -1,11 +1,9 @@
 import {
   type ChainId,
   type ChainKey,
-  type ChainsResponse,
   type ConnectionsRequest,
   type ConnectionsResponse,
   type ContractCallsQuoteRequest,
-  type ExtendedChain,
   type GasRecommendationRequest,
   type GasRecommendationResponse,
   type GetStatusRequest,
@@ -40,7 +38,6 @@ import { ValidationError } from '../errors/errors.js'
 import { request } from '../request.js'
 import { isRoutesRequest, isStep } from '../typeguards.js'
 import { withDedupe } from '../utils/withDedupe.js'
-import type { ChainType, CoinKey } from '@leapswap/widget-types'
 
 /**
  * Get a quote for a token transfer
@@ -410,66 +407,6 @@ export const getRelayedTransactionStatus = async (
   }
 
   return result.data
-}
-
-/**
- * Get all available chains
- * @returns A list of all available chains
- * @throws {LeapSwapError} Throws a LeapSwapError if request fails.
- */
-export const getChains = async (): Promise<ExtendedChain[]> => {
-  const response = await withDedupe(
-    () =>
-      request<ChainsResponse>(
-        `https://open-api.leapswap.finance/v3/widgetv2/chains`
-      ),
-    { id: `${getChains.name}` }
-  )
-  return convertChainData(response.data)
-}
-
-function convertChainData(data: any[]): ExtendedChain[] {
-
-  return data.map(chain => {
-    let json = {
-      key: chain.code as ChainKey,
-      chainType: 'EVM' as ChainType,
-      name: chain.name,
-      coin: chain.symbol as CoinKey,
-      id: Number(chain.chainId),
-      mainnet: true,
-      logoURI: chain.icon,
-      tokenlistUrl: chain.tokenlistUrl,
-      multicallAddress: chain.multicallAddress,
-      relayerSupported: false,
-      metamask: chain.metamask,
-      nativeToken: chain.nativeToken,
-      diamondAddress: chain.exchangeAddress,
-      permit2: chain.permit2,
-      permit2Proxy: chain.permit2Proxy,
-      blockExplorerUrl: chain.blockExplorerUrl?.replace('tx/', ''),
-    }
-    if (chain.code === 'solana') {
-      json.chainType = 'SVM' as ChainType
-      // json.metamask.rpcUrls[0]='https://solana-rpc.publicnode.com'
-    }
-    if (chain.code === 'near') {
-      json.chainType = 'NVM' as ChainType
-      json.metamask = {
-        blockExplorerUrls: ['https://nearblocks.io'],
-        // rpcUrls: ['https://rpc.mainnet.near.org'],
-      }
-      json.nativeToken = {
-        address: 'near.near',
-        decimals: 24,
-        symbol: 'NEAR',
-        name: 'NEAR',
-        priceUSD: '0',
-      }
-    }
-    return json
-
-  })
 }
 
 /**

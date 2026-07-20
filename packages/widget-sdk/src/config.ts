@@ -25,10 +25,14 @@ export const config = (() => {
       return _config
     },
     set(options: SDKConfig) {
-      const { chains, providers, rpcUrls, ...otherOptions } = options
+      const { chains, providers, rpcUrls, chainsProvider, ...otherOptions } =
+        options
       Object.assign(_config, otherOptions)
       if (chains) {
         this.setChains(chains)
+      }
+      if (chainsProvider) {
+        _config.chainsProvider = chainsProvider
       }
       if (providers) {
         this.setProviders(providers)

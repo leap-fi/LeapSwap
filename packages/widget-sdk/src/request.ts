@@ -28,7 +28,7 @@ export const request = async <T = Response>(
   if (!integrator) {
     throw new SDKError(
       new ValidationError(
-        'You need to provide the Integrator property. Please see documentation https://leapswap.finance/api'
+        'Missing required "integrator" config. Set integrator when initializing the SDK (createConfig).'
       )
     )
   }

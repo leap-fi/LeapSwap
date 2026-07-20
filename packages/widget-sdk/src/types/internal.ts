@@ -4,6 +4,9 @@ import type {
   RouteOptions,
 } from '@leapswap/widget-types'
 import type { SDKProvider } from '../core/types.js'
+import type { ChainsProvider } from '../services/chains.js'
+
+export type { ChainsProvider } from '../services/chains.js'
 
 export interface SDKBaseConfig {
   apiKey?: string
@@ -14,6 +17,7 @@ export interface SDKBaseConfig {
   routeOptions?: RouteOptions
   rpcUrls: RPCUrls
   chains: ExtendedChain[]
+  chainsProvider?: ChainsProvider
   disableVersionCheck?: boolean
   widgetVersion?: string
   preloadChains: boolean

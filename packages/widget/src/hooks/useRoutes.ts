@@ -16,6 +16,7 @@ import { defaultSlippage } from '../stores/settings/useSettingsStore.js'
 import { useServerErrorStore } from '../stores/useServerErrorStore.js'
 import { WidgetEvent } from '../types/events.js'
 import { getChainTypeFromAddress } from '../utils/chainType.js'
+import { DebridgeLogo } from '../icons/debridgeLogo.js'
 import { LeapSwapLogo } from '../icons/leapswapLogo.js'
 import { useChain } from './useChain.js'
 import { useDebouncedWatch } from './useDebouncedWatch.js'
@@ -358,7 +359,7 @@ export const useRoutes = ({ observableRoute }: RoutesProps = {}) => {
                   key: isBridge ? data?.quoteAdapterKey : 'leapswap',
                   name: isBridge ? data?.quoteAdapterName : 'LeapSwap',
                   logoURI: isBridge
-                    ? 'https://s3.leapswap.finance/static/debridge.svg'
+                    ? DebridgeLogo
                     : LeapSwapLogo,
                 },
                 action: {

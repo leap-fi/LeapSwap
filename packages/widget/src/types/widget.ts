@@ -33,6 +33,7 @@ import type {
   LanguageResources,
 } from '../providers/I18nProvider/types.js'
 import type { DefaultFieldValues } from '../stores/form/types.js'
+import type { ChainsProvider } from '@leapswap/widget-sdk'
 import type { SwapDataProvider } from './swapDataProvider.js'
 
 export type WidgetVariant = 'compact' | 'wide' | 'drawer'
@@ -290,6 +291,11 @@ export interface WidgetConfig {
    * Provide via @leapswap/business-integrator or a custom implementation.
    */
   swapDataProvider?: SwapDataProvider
+  /**
+   * Supported chains data source.
+   * Provide via @leapswap/business-integrator or override with a custom getChains().
+   */
+  chainsProvider?: ChainsProvider
 }
 
 export interface FormFieldOptions {

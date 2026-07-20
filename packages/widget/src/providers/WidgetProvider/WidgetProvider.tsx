@@ -43,6 +43,8 @@ export const WidgetProvider: React.FC<
         ...widgetConfig.sdkConfig,
         apiKey: widgetConfig.apiKey,
         integrator: widgetConfig.integrator ?? window?.location.hostname,
+        chainsProvider:
+          widgetConfig.chainsProvider ?? widgetConfig.sdkConfig?.chainsProvider,
         routeOptions: {
           fee: widgetConfig.feeConfig?.fee || widgetConfig.fee,
           referrer: widgetConfig.referrer?.address,

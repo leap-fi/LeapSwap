@@ -122,8 +122,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
   constructor() {
     super()
     // Initialize the API client
-    // OpenAPI.BASE = 'https://1click.chaindefuser.com'
-    OpenAPI.BASE = 'https://1click.leapswap.finance'
+    OpenAPI.BASE = 'https://1click.chaindefuser.com'
     if (this.nearTokens.length === 0) {
       this.getAllSupportedTokens()
     }
