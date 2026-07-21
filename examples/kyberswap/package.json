@@ -1,18 +1,18 @@
 {
-  "name": "vite-project",
+  "name": "kyberswap-example",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "analyze": "source-map-explorer 'dist/assets/*.js' --no-border-checks",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@leapswap/business-integrator": "workspace:*",
     "@leapswap/wallet-management": "workspace:*",
     "@leapswap/widget": "workspace:*",
+    "@leapswap/widget-sdk": "workspace:*",
+    "@leapswap/widget-types": "workspace:*",
     "@mui/material": "^6.4.8",
     "@tanstack/react-query": "^5.68.0",
     "@wagmi/connectors": "^5.7.11",

@@ -101,7 +101,7 @@ export function App() {
               dataSourceKey: integratorMode,
               formUpdateKey: integratorMode,
               hiddenUI: ['walletMenu'],
-              poweredBy: { name: 'Your Brand', url: 'https://example.com' },
+              poweredBy: { name: 'OpenOcean', url: 'https://openocean.finance' },
               subvariant: 'split',
               subvariantOptions: {
                 split: 'bridge',

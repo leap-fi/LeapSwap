@@ -20,7 +20,7 @@
 | 能力 | 说明 |
 |------|------|
 | 白标 UI | `theme`、`variant` / `subvariant`、隐藏 `hiddenUI`、自定义 `poweredBy` |
-| 数据注入 | 必传 `swapDataProvider`、`chainsProvider` — 由接入方 integrator 实现（参考 `business-integrator` 或 `examples/vite/src/integrator`） |
+| 数据注入 | 必传 `swapDataProvider`、`chainsProvider` — 由接入方 integrator 实现（参考 `business-integrator` 或 `examples/openocean/src/integrator`） |
 | 钱包协作 | 内置多链钱包菜单，或外层包 Provider + `walletConfig.onConnect` 接管连接 |
 | 跨链路由 | `@leapswap/widget-sdk` 聚合 LiFi、Relay、DeBridge 等协议并执行交易 |
 
@@ -45,7 +45,8 @@ LeapSwap/
 │   ├── widget-types/           # @leapswap/widget-types — 共享类型
 │   └── business-integrator/    # OpenOcean 参考 integrator（可选，非 example 依赖）
 ├── examples/
-│   └── vite/                   # 本地示例（src/integrator 占位，需自行实现）
+│   ├── openocean/              # OpenOcean 参考示例（可切换 Custom stub）
+│   └── kyberswap/              # KyberSwap Aggregator 自建 integrator 示例
 ├── scripts/
 └── README.md
 ```
@@ -76,7 +77,10 @@ export function App() {
 }
 ```
 
-在 `src/integrator/` 实现自有 provider，或 fork [`packages/business-integrator`](./packages/business-integrator)。本地示例页可切换 **OpenOcean（默认）** 与 **Custom** 两种模式，见 [`examples/vite`](./examples/vite)。
+在 `src/integrator/` 实现自有 provider，或 fork [`packages/business-integrator`](./packages/business-integrator)。本地示例：
+
+- [`examples/openocean`](./examples/openocean) — OpenOcean（默认）与 Custom stub 切换
+- [`examples/kyberswap`](./examples/kyberswap) — 示例方自建 KyberSwap integrator
 
 ### 常用配置项
 
@@ -98,19 +102,17 @@ Widget 会自动检测外层是否已有 `WagmiProvider`（EVM）、Solana `Conn
 ```bash
 # 需要 Node >= 20，pnpm >= 9
 pnpm install
-pnpm dev
-# → http://localhost:3000
+pnpm dev                 # OpenOcean 示例 → http://localhost:3000
+pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 ```
 
-`examples/vite` 通过 alias 直连 `packages/*/src`。发布前执行 `pnpm build`。
+示例通过 alias 直连 `packages/*/src`。发布前执行 `pnpm build`。
 
 ## 当前阶段
 
 - [x] Monorepo 与 `@leapswap/*` 包骨架
 - [x] 数据层接口抽离；OpenOcean 参考 integrator
 - [x] `poweredBy`、钱包外层协作等白标能力
-- [ ] 手续费收款地址、跨链 RPC 提成等全面可配置
-- [ ] 替换上游 integrator id 等遗留硬编码
 - [ ] npm 正式发布
 
 ## 计划发布的包
