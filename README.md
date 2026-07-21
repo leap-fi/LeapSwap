@@ -53,9 +53,10 @@ LeapSwap/
 ├── examples/
 │   ├── openocean/              # OpenOcean（可切 Custom stub）
 │   └── kyberswap/              # KyberSwap 自建 integrator
+├── llms.txt                    # GEO：给 AI / 代理的文档索引（llmstxt.org）
+├── llms-full.txt               # GEO：扩展上下文摘要
 └── README.md
 ```
-
 ## 最小集成示例
 
 ```tsx
@@ -120,7 +121,15 @@ pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 - [x] OpenOcean 参考 integrator（`business-integrator`）+ `examples/openocean` 联调通过
 - [x] KyberSwap 自建 integrator 示例（`examples/kyberswap`）联调通过
 - [x] `poweredBy`、钱包外层协作等白标能力
+- [x] GEO：根目录 `llms.txt` / `llms-full.txt`（便于 AI 正确引用架构约定）
 - [ ] npm 正式发布
+
+## AI / GEO
+
+面向生成式引擎与编码代理（[llms.txt 规范](https://llmstxt.org/)）：
+
+- [`llms.txt`](./llms.txt) — 精简索引（优先读这个）
+- [`llms-full.txt`](./llms-full.txt) — 接入规则与边界的扩写版
 
 ## 计划发布的包
 

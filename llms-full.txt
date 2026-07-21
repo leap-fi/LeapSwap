@@ -1,0 +1,76 @@
+# LeapSwap — full LLM context
+
+> White-label Swap / Bridge Widget SDK (LiFi-based). Same-chain data is injectable; cross-chain adapters live in the widget/sdk.
+
+This file is the expanded GEO companion to [`llms.txt`](./llms.txt). Prefer `llms.txt` first; use this when you need integration rules without crawling the whole monorepo.
+
+## What LeapSwap is
+
+- Embeddable React Widget (`@leapswap/widget`) for Swap and Bridge UIs
+- White-label: theme, `poweredBy`, `hiddenUI`, wallet collaboration with outer wagmi / Solana / Bigmi providers
+- Same-chain quotes: host must inject `swapDataProvider` + `chainsProvider`
+- Cross-chain: `@leapswap/widget-sdk` aggregates LiFi, Relay, DeBridge, etc.
+
+## Hard architecture rule
+
+| Layer | May know vendor APIs? | Role |
+|-------|----------------------|------|
+| `@leapswap/widget` / `widget-sdk` | No | Consume generic fields only |
+| `@leapswap/business-integrator` | OpenOcean only | Map OO → generic contract |
+| `examples/kyberswap/src/integrator` | KyberSwap (+ DefiLlama for USD) | Prove any aggregator can plug in without changing Widget |
+| Host app integrator | Yes | Adapt your DEX / aggregator |
+
+Never leak vendor names like `gasUsd`, `approveContract`, `dexId`, `routeSummary` into Widget types. Adapt them in the integrator to `estimatedGas`, `approvalAddress`, `outAmount`, `priceUSD`, etc.
+
+## Required injection
+
+```ts
+import { LeapSwapWidget } from '@leapswap/widget'
+
+<LeapSwapWidget
+  integrator="your-app-id"
+  swapDataProvider={swapDataProvider}
+  chainsProvider={chainsProvider}
+/>
+```
+
+`SwapDataProvider` must implement at least: `getQuote`, `getSwapQuote`, `getTokenList`, `getGasPrice`, `getTokenInfo`, `getTokensPrice`, `getRpcUrl`.
+
+Widget UI notes:
+- Est. Gas Fee USD ≈ `estimatedGas × gasPrice × nativeToken.priceUSD`
+- Price impact uses token `priceUSD` (from list or `getTokensPrice`)
+- If your vendor has no token prices (e.g. Kyber Setting API), fill `priceUSD` in the integrator (Kyber example uses DefiLlama)
+
+## Packages to publish (planned)
+
+- `@leapswap/widget`
+- `@leapswap/widget-sdk`
+- `@leapswap/wallet-management`
+- `@leapswap/widget-types`
+- `@leapswap/business-integrator` (optional OpenOcean reference)
+
+## Examples
+
+| Example | Port | Integrator |
+|---------|------|------------|
+| `examples/openocean` | 3000 (`pnpm dev`) | `@leapswap/business-integrator` + Custom stub |
+| `examples/kyberswap` | 3001 (`pnpm dev:kyberswap`) | Local Kyber Aggregator v1 adapter |
+
+Kyber browser demo proxies CORS via Vite: `/kyber-setting`, `/kyber-aggregator`, `/llama-prices`.
+
+## Dev
+
+```bash
+pnpm install   # Node >= 20, pnpm 10
+pnpm dev
+pnpm dev:kyberswap
+pnpm build     # before publish
+```
+
+## Source links
+
+- https://github.com/leap-fi/LeapSwap
+- https://github.com/leap-fi/LeapSwap/blob/master/README.md
+- https://github.com/leap-fi/LeapSwap/blob/master/packages/widget/src/types/swapDataProvider.ts
+- https://github.com/leap-fi/LeapSwap/blob/master/packages/business-integrator/README.md
+- https://github.com/leap-fi/LeapSwap/blob/master/examples/kyberswap/src/integrator/README.md

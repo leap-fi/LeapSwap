@@ -1,0 +1,31 @@
+# LeapSwap
+
+> White-label cross-chain Swap / Bridge Widget SDK. Same-chain quotes and chain lists are injected via `swapDataProvider` / `chainsProvider`; the Widget never speaks vendor field names (OpenOcean, KyberSwap, etc.).
+
+LeapSwap is a monorepo forked from the LiFi Widget architecture. Cross-chain routing still aggregates LiFi, Relay, DeBridge, and similar protocols. Same-chain Swap data must be supplied by an integrator package or example-local adapter.
+
+Key facts for agents:
+- Required Widget props: `integrator`, `swapDataProvider`, `chainsProvider`
+- Do not put OpenOcean/KyberSwap-specific fields into `@leapswap/widget` or `@leapswap/widget-sdk`
+- Map vendor APIs inside `@leapswap/business-integrator` or `examples/*/src/integrator`
+- Dev: Node >= 20, pnpm 10; `pnpm dev` (OpenOcean :3000), `pnpm dev:kyberswap` (KyberSwap :3001)
+- Repo: https://github.com/leap-fi/LeapSwap
+
+## Docs
+
+- [README](https://github.com/leap-fi/LeapSwap/blob/master/README.md): Product overview, architecture boundary, quick start
+- [OpenOcean integrator package](https://github.com/leap-fi/LeapSwap/blob/master/packages/business-integrator/README.md): Reference OpenOcean → generic `SwapDataProvider` mapping
+- [OpenOcean example](https://github.com/leap-fi/LeapSwap/blob/master/examples/openocean/README.md): Default demo using `business-integrator` (+ Custom stub)
+- [KyberSwap example](https://github.com/leap-fi/LeapSwap/blob/master/examples/kyberswap/README.md): Self-built integrator (no `business-integrator`)
+- [KyberSwap integrator notes](https://github.com/leap-fi/LeapSwap/blob/master/examples/kyberswap/src/integrator/README.md): Routes / chains / DefiLlama priceUSD mapping
+- [OpenOcean example integrator notes](https://github.com/leap-fi/LeapSwap/blob/master/examples/openocean/src/integrator/README.md): Mode switch OpenOcean vs Custom
+
+## Contracts (source of truth)
+
+- [SwapDataProvider types](https://github.com/leap-fi/LeapSwap/blob/master/packages/widget/src/types/swapDataProvider.ts): Generic quote / gas / token price contract
+- [ChainsProvider](https://github.com/leap-fi/LeapSwap/blob/master/packages/widget-sdk/src/services/chains.ts): `() => Promise<ExtendedChain[]>`
+
+## Optional
+
+- [Full LLM context](https://github.com/leap-fi/LeapSwap/blob/master/llms-full.txt): Expanded GEO digest for longer context windows
+- [llmstxt.org](https://llmstxt.org/): Spec for this file
