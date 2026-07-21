@@ -85,8 +85,8 @@ export function App() {
 
 本地完整示例：
 
-- [`examples/openocean`](./examples/openocean) — 默认 OpenOcean + 侧边栏可切 Custom stub
-- [`examples/kyberswap`](./examples/kyberswap) — 纯自建 KyberSwap integrator（证明任意聚合器可插）
+- [`examples/openocean`](./examples/openocean) — 默认 OpenOcean ，测试通过
+- [`examples/kyberswap`](./examples/kyberswap) — 纯自建 KyberSwap integrator 测试通过（任意聚合器可接入）
 
 ### 常用配置项
 
@@ -112,29 +112,12 @@ pnpm dev                 # OpenOcean 示例 → http://localhost:3000
 pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 ```
 
-`examples/openocean` 开发时通过 Vite alias 直连 `packages/*/src`；`examples/kyberswap` 使用 npm 已发布的 `@leapswap/*@0.1.0`。发布流程见 [`docs/PUBLISH.md`](./docs/PUBLISH.md)。
-
 ## 当前阶段
 
-- [x] Monorepo 与 `@leapswap/*` 包骨架
+- [x] Monorepo 与 `@leapswap/*` 包
 - [x] 同链数据层接口抽离（`SwapDataProvider` / `ChainsProvider`）
 - [x] OpenOcean 参考 integrator（`business-integrator`）+ `examples/openocean` 联调通过
 - [x] KyberSwap 自建 integrator 示例（`examples/kyberswap`）联调通过
-- [x] `poweredBy`、钱包外层协作等白标能力
-- [x] GEO：根目录 `llms.txt` / `llms-full.txt`（便于 AI 正确引用架构约定）
-- [x] npm 正式发布（[`docs/PUBLISH.md`](./docs/PUBLISH.md)）
-
-## AI / GEO
-
-面向生成式引擎与编码代理（[llms.txt 规范](https://llmstxt.org/)）：
-
-- [`llms.txt`](./llms.txt) — 精简索引（优先读这个）
-- [`llms-full.txt`](./llms-full.txt) — 接入规则与边界的扩写版
-
-## 计划发布的包
-
-- `@leapswap/widget`
-- `@leapswap/widget-sdk`
-- `@leapswap/wallet-management`
-- `@leapswap/widget-types`
-- `@leapswap/business-integrator`（OpenOcean 参考，可选）
+- [x] `poweredBy`、钱包外层协作等能力
+- [x] GEO：根目录 `llms.txt` / `llms-full.txt`
+- [x] npm 正式发布
