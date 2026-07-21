@@ -112,7 +112,7 @@ pnpm dev                 # OpenOcean 示例 → http://localhost:3000
 pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 ```
 
-示例通过 Vite alias 直连 `packages/*/src`。发布前执行 `pnpm build`。
+`examples/openocean` 开发时通过 Vite alias 直连 `packages/*/src`；`examples/kyberswap` 使用 npm 已发布的 `@leapswap/*@0.1.0`。发布流程见 [`docs/PUBLISH.md`](./docs/PUBLISH.md)。
 
 ## 当前阶段
 

@@ -1,19 +1,5 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-
-const workspaceAliases = {
-  '@leapswap/widget': path.join(root, 'packages/widget/src'),
-  '@leapswap/widget-sdk': path.join(root, 'packages/widget-sdk/src'),
-  '@leapswap/wallet-management': path.join(
-    root,
-    'packages/wallet-management/src'
-  ),
-  '@leapswap/widget-types': path.join(root, 'packages/widget-types/src'),
-}
 
 export default defineConfig({
   plugins: [react()],
@@ -25,15 +11,23 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      ...workspaceAliases,
       buffer: 'buffer/',
       process: 'process/browser',
     },
-    dedupe: ['react', 'react-dom', '@emotion/react', '@emotion/styled'],
+    // Resolve @leapswap/* from node_modules (npm registry), not monorepo packages/
+    dedupe: [
+      'react',
+      'react-dom',
+      '@emotion/react',
+      '@emotion/styled',
+      '@leapswap/widget',
+      '@leapswap/widget-sdk',
+      '@leapswap/wallet-management',
+      '@leapswap/widget-types',
+    ],
   },
   optimizeDeps: {
     include: ['buffer', 'process'],
-    exclude: Object.keys(workspaceAliases),
     esbuildOptions: {
       define: {
         global: 'globalThis',
@@ -43,9 +37,6 @@ export default defineConfig({
   server: {
     port: 3001,
     open: true,
-    fs: {
-      allow: [root],
-    },
     // Browser demos hit CORS on Kyber hosts; proxy keeps official URLs server-side.
     proxy: {
       '/kyber-setting': {
