@@ -7,7 +7,9 @@
 
 本仓库基于 **[LiFi Widget](https://github.com/lifinance/widget)** 改造而来：Widget UI、`widget-sdk` 路由执行、多链钱包集成等核心架构沿用 LiFi 体系；跨链仍聚合 LiFi、Relay、DeBridge 等协议。
 
-同链 Swap 的报价与链列表通过 **`swapDataProvider` / `chainsProvider` 注入**，由接入方自己的 integrator 包提供（对接自有 DEX 或聚合 API）。仓库内 [`packages/business-integrator`](./packages/business-integrator) 仅作 **OpenOcean 参考实现**，示例工程不包含该依赖。
+同链 Swap 的报价与链列表通过 **`swapDataProvider` / `chainsProvider` 注入**，由接入方自己的 integrator 提供（对接自有 DEX 或聚合 API）。
+
+**边界约定**：Widget / widget-sdk 只消费通用契约，不出现 OpenOcean、KyberSwap 等供应商字段名；映射全部放在 integrator（包或示例内 `src/integrator/`）。
 
 ## 适用场景
 
@@ -20,7 +22,7 @@
 | 能力 | 说明 |
 |------|------|
 | 白标 UI | `theme`、`variant` / `subvariant`、隐藏 `hiddenUI`、自定义 `poweredBy` |
-| 数据注入 | 必传 `swapDataProvider`、`chainsProvider` — 由接入方 integrator 实现（参考 `business-integrator` 或 `examples/openocean/src/integrator`） |
+| 数据注入 | 必传 `swapDataProvider`、`chainsProvider` — 由接入方 integrator 实现 |
 | 钱包协作 | 内置多链钱包菜单，或外层包 Provider + `walletConfig.onConnect` 接管连接 |
 | 跨链路由 | `@leapswap/widget-sdk` 聚合 LiFi、Relay、DeBridge 等协议并执行交易 |
 
@@ -28,59 +30,62 @@
 
 | 注入项 | 谁来实现 | 说明 |
 |--------|----------|------|
-| **`swapDataProvider`** | 接入方 integrator | 实现通用 `SwapDataProvider`（入参/出参见 widget 类型；OpenOcean 字段映射放在 integrator 内） |
+| **`swapDataProvider`** | 接入方 integrator | 通用 `SwapDataProvider`（类型见 `@leapswap/widget`） |
 | **`chainsProvider`** | 接入方 integrator | `() => Promise<ExtendedChain[]>` |
 
-Widget 只消费接口，不关心背后是 OpenOcean、自研聚合器还是某 DEX API。  
-参考实现：[`@leapswap/business-integrator`](./packages/business-integrator)（`createOpenOceanDataProvider` / `createOpenOceanChainsProvider`）。
+两种参考接法：
+
+| 方式 | 位置 | 说明 |
+|------|------|------|
+| 可复用包 | [`@leapswap/business-integrator`](./packages/business-integrator) | OpenOcean → 通用契约（`examples/openocean` 默认使用） |
+| 示例内自建 | [`examples/kyberswap/src/integrator`](./examples/kyberswap/src/integrator) | KyberSwap Aggregator → 通用契约（**不**依赖 business-integrator） |
 
 ## 仓库结构
 
 ```
 LeapSwap/
 ├── packages/
-│   ├── widget/                 # @leapswap/widget — React UI 组件
-│   ├── widget-sdk/             # @leapswap/widget-sdk — 路由、报价、执行
-│   ├── wallet-management/      # @leapswap/wallet-management — 多链钱包与连接 UI
+│   ├── widget/                 # @leapswap/widget — React UI
+│   ├── widget-sdk/             # @leapswap/widget-sdk — 路由、执行
+│   ├── wallet-management/      # @leapswap/wallet-management — 多链钱包
 │   ├── widget-types/           # @leapswap/widget-types — 共享类型
-│   └── business-integrator/    # OpenOcean 参考 integrator（可选，非 example 依赖）
+│   └── business-integrator/    # OpenOcean 参考 integrator（可选依赖）
 ├── examples/
-│   ├── openocean/              # OpenOcean 参考示例（可切换 Custom stub）
-│   └── kyberswap/              # KyberSwap Aggregator 自建 integrator 示例
-├── scripts/
+│   ├── openocean/              # OpenOcean（可切 Custom stub）
+│   └── kyberswap/              # KyberSwap 自建 integrator
 └── README.md
 ```
 
 ## 最小集成示例
 
 ```tsx
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { LeapSwapWidget } from '@leapswap/widget'
-import { getIntegrator } from './integrator/getIntegrator'
+import {
+  createOpenOceanDataProvider,
+  createOpenOceanChainsProvider,
+} from '@leapswap/business-integrator'
+// 或：从自建 integrator 导出 swapDataProvider / chainsProvider
 
 export function App() {
-  const [mode, setMode] = useState<'openocean' | 'custom'>('openocean')
-  const { swapDataProvider, chainsProvider } = useMemo(
-    () => getIntegrator(mode),
-    [mode]
-  )
+  const swapDataProvider = useMemo(() => createOpenOceanDataProvider(), [])
+  const chainsProvider = useMemo(() => createOpenOceanChainsProvider(), [])
 
   return (
     <LeapSwapWidget
-      key={mode}
       integrator="your-app-id"
       swapDataProvider={swapDataProvider}
       chainsProvider={chainsProvider}
-      /* ...theme, walletConfig, etc. */
+      /* theme、walletConfig、poweredBy … */
     />
   )
 }
 ```
 
-在 `src/integrator/` 实现自有 provider，或 fork [`packages/business-integrator`](./packages/business-integrator)。本地示例：
+本地完整示例：
 
-- [`examples/openocean`](./examples/openocean) — OpenOcean（默认）与 Custom stub 切换
-- [`examples/kyberswap`](./examples/kyberswap) — 示例方自建 KyberSwap integrator
+- [`examples/openocean`](./examples/openocean) — 默认 OpenOcean + 侧边栏可切 Custom stub
+- [`examples/kyberswap`](./examples/kyberswap) — 纯自建 KyberSwap integrator（证明任意聚合器可插）
 
 ### 常用配置项
 
@@ -100,18 +105,20 @@ Widget 会自动检测外层是否已有 `WagmiProvider`（EVM）、Solana `Conn
 ## 快速开始（开发）
 
 ```bash
-# 需要 Node >= 20，pnpm >= 9
+# Node >= 20；本仓库 packageManager 为 pnpm@10
 pnpm install
 pnpm dev                 # OpenOcean 示例 → http://localhost:3000
 pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 ```
 
-示例通过 alias 直连 `packages/*/src`。发布前执行 `pnpm build`。
+示例通过 Vite alias 直连 `packages/*/src`。发布前执行 `pnpm build`。
 
 ## 当前阶段
 
 - [x] Monorepo 与 `@leapswap/*` 包骨架
-- [x] 数据层接口抽离；OpenOcean 参考 integrator
+- [x] 同链数据层接口抽离（`SwapDataProvider` / `ChainsProvider`）
+- [x] OpenOcean 参考 integrator（`business-integrator`）+ `examples/openocean` 联调通过
+- [x] KyberSwap 自建 integrator 示例（`examples/kyberswap`）联调通过
 - [x] `poweredBy`、钱包外层协作等白标能力
 - [ ] npm 正式发布
 
