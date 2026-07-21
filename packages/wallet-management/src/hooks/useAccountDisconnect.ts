@@ -1,4 +1,8 @@
 import { useConfig as useBigmiConfig } from '@bigmi/react'
+import {
+  disconnect as bigmiDisconnect,
+  getAccount as bigmiGetAccount,
+} from '@bigmi/client'
 import { ChainType } from '@leapswap/widget-sdk'
 import { useWallet } from '@solana/wallet-adapter-react'
 import type { Config } from 'wagmi'
@@ -17,29 +21,36 @@ export const useAccountDisconnect = () => {
   const { setLastConnectedAccount } = useLastConnectedAccount()
   const nearWallet = useWalletSelector() as any
 
-  const handleDisconnect = async (config: Config) => {
+  const handleEvmDisconnect = async (config: Config) => {
     const connectedAccount = getAccount(config)
     if (connectedAccount.connector) {
       await disconnect(config, { connector: connectedAccount.connector })
     }
   }
 
+  const handleUtxoDisconnect = async () => {
+    const connectedAccount = bigmiGetAccount(bigmiConfig)
+    if (connectedAccount.connector) {
+      await bigmiDisconnect(bigmiConfig, {
+        connector: connectedAccount.connector,
+      })
+    }
+  }
+
   return async (account: Account) => {
     switch (account.chainType) {
       case ChainType.EVM:
-        await handleDisconnect(wagmiConfig)
+        await handleEvmDisconnect(wagmiConfig)
         break
       case ChainType.UTXO:
-        await handleDisconnect(bigmiConfig)
+        await handleUtxoDisconnect()
         break
       case ChainType.NVM:
         try {
-          // 调用 Near 钱包的 signOut（如果可用）
           await nearWallet?.signOut?.()
         } catch (error) {
           console.error('Failed to sign out Near wallet', error)
         }
-        // 清空全局 Near 账户和最近连接记录
         setNearAccount(null)
         setLastConnectedAccount(null)
         break

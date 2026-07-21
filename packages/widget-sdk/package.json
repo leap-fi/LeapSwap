@@ -68,7 +68,7 @@
     "watch": "tsc -w -p ./tsconfig.json"
   },
   "dependencies": {
-    "@bigmi/core": "^0.1.1",
+    "@bigmi/core": "^0.9.0",
     "@leapswap/widget-types": "workspace:*",
     "@noble/curves": "^1.8.2",
     "@solana/wallet-adapter-base": "^0.9.24",

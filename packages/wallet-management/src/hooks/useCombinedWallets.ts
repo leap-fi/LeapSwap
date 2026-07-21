@@ -1,4 +1,7 @@
-import { useConfig as useBigmiConfig } from '@bigmi/react'
+import {
+  useAccount as useBigmiAccount,
+  useConnect as useBigmiConnect,
+} from '@bigmi/react'
 import type { Theme } from '@mui/material'
 import { useMediaQuery } from '@mui/material'
 import { ChainType } from '@leapswap/widget-sdk'
@@ -99,11 +102,10 @@ const combineWalletLists = (
 
 export const useCombinedWallets = () => {
   const walletConfig = useWalletManagementConfig()
-  const bigmiConfig = useBigmiConfig()
   const wagmiAccount = useAccount()
-  const bigmiAccount = useAccount({ config: bigmiConfig })
+  const bigmiAccount = useBigmiAccount()
   const { connectors: wagmiConnectors } = useConnect()
-  const { connectors: bigmiConnectors } = useConnect({ config: bigmiConfig })
+  const { connectors: bigmiConnectors } = useBigmiConnect()
   const { wallets: solanaWallets } = useWallet()
 
   const isDesktopView = useMediaQuery((theme: Theme) =>
@@ -177,7 +179,10 @@ export const useCombinedWallets = () => {
       : []
 
     const installedCombinedWallets = combineWalletLists(
-      installedUTXOConnectors,
+      installedUTXOConnectors as unknown as (
+        | CreateConnectorFnExtended
+        | Connector
+      )[],
       installedEVMConnectors,
       installedSVMWallets
     )
@@ -236,8 +241,11 @@ export const useCombinedWallets = () => {
     })
 
     const notDetectedCombinedWallets = combineWalletLists(
+      notDetectedUTXOConnectors as unknown as (
+        | CreateConnectorFnExtended
+        | Connector
+      )[],
       notDetectedEVMConnectors,
-      notDetectedUTXOConnectors,
       notDetectedSVMWallets
     )
 

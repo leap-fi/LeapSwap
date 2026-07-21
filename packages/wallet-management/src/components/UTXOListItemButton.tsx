@@ -1,8 +1,8 @@
 import { useConfig } from '@bigmi/react'
+import { connect, disconnect, getAccount } from '@bigmi/client'
 import { Avatar, ListItemAvatar } from '@mui/material'
-import { ChainType } from '@leapswap/widget-sdk'
+import { ChainId, ChainType } from '@leapswap/widget-sdk'
 import type { Connector } from 'wagmi'
-import { connect, disconnect, getAccount } from 'wagmi/actions'
 import { ListItemButton } from '../components/ListItemButton.js'
 import { ListItemText } from '../components/ListItemText.js'
 import type { CreateConnectorFnExtended } from '../connectors/types.js'
@@ -44,14 +44,18 @@ export const UTXOListItemButton = ({
       }
       const connectedAccount = getAccount(config)
       onConnecting?.()
-      const data = await connect(config, { connector })
+      const data = await connect(config, {
+        connector: connector as any,
+      })
       if (connectedAccount.connector) {
         await disconnect(config, { connector: connectedAccount.connector })
       }
       setLastConnectedAccount(connector)
+      const first = data.accounts[0] as { address?: string } | string
+      const address = typeof first === 'string' ? first : first?.address
       emitter.emit(WalletManagementEvent.WalletConnected, {
-        address: data.accounts[0],
-        chainId: data.chainId,
+        address: address || '',
+        chainId: ChainId.BTC,
         chainType: ChainType.UTXO,
         connectorId: connector.id,
         connectorName: connectorName,

@@ -4,14 +4,12 @@ import {
   leather,
   okx,
   onekey,
-  phantom,
   unisat,
   xverse,
+  type Config,
+  type CreateConnectorFn,
 } from '@bigmi/client'
-import { bitcoin } from '@bigmi/core'
-import { ChainId } from '@leapswap/widget-sdk'
-import { http, createClient } from 'viem'
-import type { Config, CreateConnectorFn } from 'wagmi'
+import { bitcoin, createClient, http } from '@bigmi/core'
 
 export interface DefaultBigmiConfigProps {
   bigmiConfig?: {
@@ -31,20 +29,8 @@ export interface DefaultBigmiConfigResult {
 }
 
 /**
- * Creates default Bigmi config that can be later synced (via useSyncBigmiConfig) with chains fetched from the aggregator API.
- * @param props Properties to setup connectors. {@link DefaultBigmiConfigProps}
- * @returns Bigmi config and connectors. {@link DefaultBigmiConfigResult}
- * @example
- *  const { config, connectors } = createDefaultBigmiConfig();
- *  export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
- *    const { chains } = useAvailableChains();
- *    useSyncBigmiConfig(config, connectors, chains);
- *    return (
- *      <BigmiProvider config={wagmi.config} reconnectOnMount={false}>
- *        {children}
- *      </BigmiProvider>
- *    );
- *  };
+ * Creates default Bigmi config for UTXO (Bitcoin) wallets.
+ * Must stay aligned with `@bigmi/react` peer (client 0.10 / core 0.9).
  */
 export function createDefaultBigmiConfig(
   props: DefaultBigmiConfigProps = {
@@ -52,13 +38,12 @@ export function createDefaultBigmiConfig(
   }
 ): DefaultBigmiConfigResult {
   const connectors: CreateConnectorFn[] = [
-    phantom({ chainId: ChainId.BTC }),
-    xverse({ chainId: ChainId.BTC }),
-    unisat({ chainId: ChainId.BTC }),
-    ctrl({ chainId: ChainId.BTC }),
-    okx({ chainId: ChainId.BTC }),
-    leather({ chainId: ChainId.BTC }),
-    onekey({ chainId: ChainId.BTC }),
+    xverse(),
+    unisat(),
+    ctrl(),
+    okx(),
+    leather(),
+    onekey(),
     ...(props?.connectors ?? []),
   ]
 

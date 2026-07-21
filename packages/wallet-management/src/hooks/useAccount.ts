@@ -1,10 +1,10 @@
-import { useConfig as useBigmiConfig } from '@bigmi/react'
+import { useAccount as useBigmiAccount } from '@bigmi/react'
 import { ChainId, ChainType } from '@leapswap/widget-sdk'
 import type { WalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useMemo } from 'react'
 import type { Connector } from 'wagmi'
-import { useAccount as useAccountInternal } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { create } from 'zustand'
 import type { CreateConnectorFnExtended } from '../connectors/types.js'
 
@@ -95,9 +95,8 @@ export const useNearAccountStore = create<NearAccountStore>((set) => ({
  * @returns - Account result
  */
 export const useAccount = (args?: UseAccountArgs): AccountResult => {
-  const bigmiConfig = useBigmiConfig()
-  const bigmiAccount = useAccountInternal({ config: bigmiConfig })
-  const wagmiAccount = useAccountInternal()
+  const bigmiAccount = useBigmiAccount()
+  const wagmiAccount = useWagmiAccount()
   const { wallet } = useWallet()
   const { lastConnectedAccount } = useLastConnectedAccount()
   const { nearAccount } = useNearAccountStore()
@@ -125,7 +124,20 @@ export const useAccount = (args?: UseAccountArgs): AccountResult => {
         status: 'disconnected',
       }
     const evm: Account = { ...wagmiAccount, chainType: ChainType.EVM }
-    const utxo: Account = { ...bigmiAccount, chainType: ChainType.UTXO }
+    const utxoAddress =
+      bigmiAccount.account?.address ?? bigmiAccount.accounts?.[0]?.address
+    const utxo: Account = {
+      address: utxoAddress,
+      addresses: bigmiAccount.accounts?.map((item) => item.address),
+      chainId: ChainId.BTC,
+      chainType: ChainType.UTXO,
+      connector: bigmiAccount.connector as unknown as Connector,
+      isConnected: bigmiAccount.isConnected,
+      isConnecting: bigmiAccount.isConnecting,
+      isDisconnected: bigmiAccount.isDisconnected,
+      isReconnecting: bigmiAccount.isReconnecting,
+      status: bigmiAccount.status,
+    }
 
     const nvm: Account =
       nearAccount && nearAccount.isConnected
@@ -184,7 +196,8 @@ export const useAccount = (args?: UseAccountArgs): AccountResult => {
     bigmiAccount.connector?.uid,
     bigmiAccount.connector?.id,
     bigmiAccount.status,
-    bigmiAccount.address,
+    bigmiAccount.account?.address,
+    bigmiAccount.accounts?.[0]?.address,
     bigmiAccount.chainId,
     args?.chainType,
     lastConnectedAccount,
