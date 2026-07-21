@@ -1,6 +1,6 @@
 {
   "name": "@leapswap/widget",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "LeapSwap Widget for cross-chain bridging and swapping.",
   "type": "module",
   "main": "./dist/esm/index.js",
