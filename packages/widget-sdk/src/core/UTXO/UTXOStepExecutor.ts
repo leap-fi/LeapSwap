@@ -1,8 +1,12 @@
-import { signPsbt, waitForTransaction } from '@bigmi/core'
-import type { ReplacementReason } from '@bigmi/core'
+import {
+  sendUTXOTransaction,
+  signPsbt,
+  waitForTransaction,
+} from '@bigmi/core'
+import type { Client, ReplacementReason } from '@bigmi/core'
 import { ChainId } from '@leapswap/widget-types'
 import { Psbt, address, networks } from 'bitcoinjs-lib'
-import { type Client, withTimeout } from 'viem'
+import { withTimeout } from 'viem'
 import { config } from '../../config.js'
 import { LeapSwapErrorCode } from '../../errors/constants.js'
 import { TransactionError } from '../../errors/errors.js'
@@ -32,7 +36,6 @@ export class UTXOStepExecutor extends BaseStepExecutor {
   }
 
   checkClient = (step: LeapSwapStepExtended) => {
-    // TODO: check chain and possibly implement chain switch?
     // Prevent execution of the quote by wallet different from the one which requested the quote
     if (this.client.account?.address !== step.action.fromAddress) {
       throw new TransactionError(
@@ -190,7 +193,7 @@ export class UTXOStepExecutor extends BaseStepExecutor {
 
           txHex = signedPsbt.extractTransaction().toHex()
 
-          txHash = await publicClient.sendUTXOTransaction({
+          txHash = await sendUTXOTransaction(publicClient, {
             hex: txHex,
           })
 

@@ -1,78 +1,45 @@
-import { UTXOAPIActions, UTXOActions, utxo } from '@bigmi/core'
-import type { UTXOAPISchema, UTXOSchema } from '@bigmi/core'
 import {
-  http,
-  type Chain,
-  type Client,
-  type FallbackTransport,
-  type HttpTransport,
+  ankr,
+  bitcoin,
+  blockchair,
+  blockcypher,
   createClient,
   fallback,
-  rpcSchema,
-} from 'viem'
-import { config } from '../../config.js'
-import { getRpcUrls } from '../rpc.js'
+  mempool,
+  publicActions,
+  type Client,
+  type PublicActions,
+} from '@bigmi/core'
+import { ChainId } from '@leapswap/widget-types'
 
-// cached providers
-const publicClients: Record<
-  number,
-  Client<
-    FallbackTransport<readonly HttpTransport[]>,
-    Chain,
-    undefined,
-    UTXOSchema & UTXOAPISchema,
-    UTXOActions & UTXOAPIActions
-  >
-> = {}
+export type UTXOPublicClient = Client & PublicActions
+
+/** Cached by LeapSwap numeric chain id (BTC uses a synthetic id). */
+const publicClients: Partial<Record<number, UTXOPublicClient>> = {}
 
 /**
- * Get an instance of a provider for a specific chain
- * @param chainId - Id of the chain the provider is for
- * @returns The public client for the given chain
+ * Public Bitcoin client (Bigmi 0.9+).
+ * LeapSwap `ChainId.BTC` is a synthetic number; the client always targets Bitcoin mainnet.
  */
-export const getUTXOPublicClient = async (chainId: number) => {
-  if (!publicClients[chainId]) {
-    const urls = await getRpcUrls(chainId)
-    const fallbackTransports = urls.map((url) => http(url))
-    const _chain = await config.getChainById(chainId)
-    const chain: Chain = {
-      ..._chain,
-      ..._chain.metamask,
-      name: _chain.metamask.chainName,
-      rpcUrls: {
-        default: { http: _chain.metamask.rpcUrls },
-        public: { http: _chain.metamask.rpcUrls },
-      },
-    }
-    const client = createClient({
-      chain,
-      rpcSchema: rpcSchema<UTXOSchema & UTXOAPISchema>(),
-      transport: fallback([
-        utxo('https://api.blockchair.com', {
-          key: 'blockchair',
-          includeChainToURL: true,
-        }),
-        utxo('https://api.blockcypher.com/v1/btc/main', {
-          key: 'blockcypher',
-        }),
-        utxo('https://mempool.space/api', {
-          key: 'mempool',
-        }),
-        utxo('https://rpc.ankr.com/http/btc_blockbook/api/v2', {
-          key: 'ankr',
-        }),
-        ...fallbackTransports,
-      ]),
-      pollingInterval: 10_000,
-    })
-      .extend(UTXOActions)
-      .extend(UTXOAPIActions)
-    publicClients[chainId] = client
+export const getUTXOPublicClient = async (
+  chainId: number = ChainId.BTC
+): Promise<UTXOPublicClient> => {
+  const cached = publicClients[chainId]
+  if (cached) {
+    return cached
   }
 
-  if (!publicClients[chainId]) {
-    throw new Error(`Unable to configure provider for chain ${chainId}`)
-  }
+  const client = createClient({
+    chain: bitcoin,
+    transport: fallback([
+      blockchair(),
+      blockcypher(),
+      mempool(),
+      ankr(),
+    ]),
+    pollingInterval: 10_000,
+  }).extend(publicActions)
 
-  return publicClients[chainId]
+  publicClients[chainId] = client
+  return client
 }
