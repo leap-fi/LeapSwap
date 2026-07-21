@@ -1,10 +1,10 @@
 import { BigmiProvider, useReconnect } from '@bigmi/react'
-import type { DefaultWagmiConfigResult } from '@leapswap/wallet-management'
+import type { DefaultBigmiConfigResult } from '@leapswap/wallet-management'
 import { createDefaultBigmiConfig } from '@leapswap/wallet-management'
 import { type FC, type PropsWithChildren, useRef } from 'react'
 
 export const UTXOBaseProvider: FC<PropsWithChildren> = ({ children }) => {
-  const bigmi = useRef<DefaultWagmiConfigResult>(null)
+  const bigmi = useRef<DefaultBigmiConfigResult>(null)
 
   if (!bigmi.current) {
     bigmi.current = createDefaultBigmiConfig({

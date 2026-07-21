@@ -1,14 +1,12 @@
+import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import fsExtra from 'fs-extra'
-const { readFile, writeFile, copy, remove } = fsExtra
 
 export async function formatPackageFile() {
   const originalPackageJsonPath = resolve(process.cwd(), './package.json')
   const packageTmpPath = resolve(process.cwd(), './package.json.tmp')
 
   const packageData = await readFile(originalPackageJsonPath, 'utf8')
-
-  await copy(originalPackageJsonPath, packageTmpPath)
+  await copyFile(originalPackageJsonPath, packageTmpPath)
 
   const {
     nyc,
@@ -54,8 +52,8 @@ export async function restorePackageFile() {
     const originalPackageJsonPath = resolve(process.cwd(), './package.json')
     const packageTmpPath = resolve(process.cwd(), './package.json.tmp')
 
-    await copy(packageTmpPath, originalPackageJsonPath)
-    await remove(packageTmpPath)
+    await copyFile(packageTmpPath, originalPackageJsonPath)
+    await unlink(packageTmpPath)
   } catch (_error) {
     console.warn('Post release failed.')
   }

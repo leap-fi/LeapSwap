@@ -1,8 +1,7 @@
 # dependencies
-node_modules
-dist/
-!packages/widget/dist/
-build/
+**/node_modules
+**/dist/
+**/build/
 /.pnp
 .pnp.js
 .pnp.*
