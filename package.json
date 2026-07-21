@@ -6,10 +6,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "pnpm -r --parallel --filter './packages/**' build",
-    "clean": "pnpm -r --parallel --filter './packages/**' clean",
+    "build": "pnpm -r --filter './packages/**' build",
+    "clean": "pnpm -r --filter './packages/**' clean",
     "dev": "pnpm --filter openocean-example dev",
     "dev:kyberswap": "pnpm --filter kyberswap-example dev",
+    "publish:dry": "bash scripts/publish-packages.sh",
+    "publish:packages": "bash scripts/publish-packages.sh --yes",
     "check:types": "pnpm -r --parallel --filter './packages/**' check:types",
     "check": "biome check"
   },

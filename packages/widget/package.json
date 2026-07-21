@@ -21,9 +21,20 @@
     "check:circular-deps-graph": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx') --image graph.svg",
     "test": "vitest run"
   },
+  "license": "MIT",
   "author": "leapswap",
+  "homepage": "https://github.com/leap-fi/LeapSwap",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leap-fi/LeapSwap.git",
+    "directory": "packages/widget"
+  },
+  "bugs": {
+    "url": "https://github.com/leap-fi/LeapSwap/issues"
+  },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
     "widget",

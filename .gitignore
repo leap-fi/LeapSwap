@@ -46,4 +46,4 @@ next-env.d.ts
 /.nuxt/
 /.output/
 
-# *.md
+*.md

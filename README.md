@@ -122,7 +122,7 @@ pnpm dev:kyberswap       # KyberSwap 示例 → http://localhost:3001
 - [x] KyberSwap 自建 integrator 示例（`examples/kyberswap`）联调通过
 - [x] `poweredBy`、钱包外层协作等白标能力
 - [x] GEO：根目录 `llms.txt` / `llms-full.txt`（便于 AI 正确引用架构约定）
-- [ ] npm 正式发布
+- [x] npm 正式发布（[`docs/PUBLISH.md`](./docs/PUBLISH.md)）
 
 ## AI / GEO
 

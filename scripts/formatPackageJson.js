@@ -28,7 +28,7 @@ export async function formatPackageFile() {
         types: './dist/esm/index.d.ts',
         default: './dist/esm/index.js',
       },
-      ...(packageDataOther.name === '@lifi/widget'
+      ...(packageDataOther.name === '@leapswap/widget'
         ? {
             './skeleton': {
               types: './dist/esm/components/Skeleton/WidgetSkeleton.d.ts',

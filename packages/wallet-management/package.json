@@ -19,9 +19,20 @@
     "check:circular-deps": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx')",
     "check:circular-deps-graph": "madge --circular $(find ./src -name '*.ts' -o -name '*.tsx') --image graph.svg"
   },
+  "license": "MIT",
   "author": "leapswap",
+  "homepage": "https://github.com/leap-fi/LeapSwap",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leap-fi/LeapSwap.git",
+    "directory": "packages/wallet-management"
+  },
+  "bugs": {
+    "url": "https://github.com/leap-fi/LeapSwap/issues"
+  },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
     "wallet",
