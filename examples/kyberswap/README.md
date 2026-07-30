@@ -21,14 +21,31 @@ pnpm dev:kyberswap
 pnpm --filter kyberswap-example dev --host
 ```
 
+## 国际化联动
+
+外层用自己的 `i18next`；切换语言时把同一 locale 传给 Widget：
+
+```ts
+config={{
+  languages: { default: locale, allow: ['en', 'zh'] },
+  hiddenUI: ['walletMenu', 'language'], // 语言由外层控制
+}}
+```
+
+Widget 内部另有独立 i18n 实例，**不能**共享 host 的 i18n；靠 `languages.default` 同步。
+
 ## 结构
 
 ```
 src/
 ├── App.tsx
+├── i18n/                       # 外层文案 + i18next
+├── components/
+│   ├── LanguageSwitcher.tsx
+│   └── WalletHeader.tsx
 ├── integrator/
-│   ├── createKyberSwapDataProvider.ts  # SwapDataProvider
-│   ├── chainsProvider.ts               # Kyber Setting chains API
+│   ├── createKyberSwapDataProvider.ts
+│   ├── chainsProvider.ts
 │   ├── constants.ts
 │   └── README.md
 └── providers/WalletProvider.tsx

@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
 const chrome = {
@@ -12,6 +13,7 @@ const chrome = {
 }
 
 export function WalletHeader() {
+  const { t } = useTranslation()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
   const { connectors, connectAsync } = useConnect()
@@ -19,7 +21,7 @@ export function WalletHeader() {
   return (
     <Box display="flex" flexDirection="column" gap={1.25}>
       <Typography fontSize={13} fontWeight={600} sx={{ color: chrome.text }}>
-        KyberSwap example
+        {t('app.title')}
       </Typography>
       {address ? (
         <Typography
@@ -30,7 +32,7 @@ export function WalletHeader() {
         </Typography>
       ) : (
         <Typography fontSize={13} sx={{ color: chrome.textSecondary }}>
-          Wallet not connected
+          {t('app.walletDisconnected')}
         </Typography>
       )}
       {!isConnected ? (
@@ -48,7 +50,7 @@ export function WalletHeader() {
             '&:hover': { bgcolor: chrome.primaryDark },
           }}
         >
-          Connect
+          {t('app.connect')}
         </Button>
       ) : (
         <Button
@@ -69,7 +71,7 @@ export function WalletHeader() {
             },
           }}
         >
-          Disconnect
+          {t('app.disconnect')}
         </Button>
       )}
     </Box>

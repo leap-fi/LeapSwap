@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "KyberSwap example",
+    "walletDisconnected": "Wallet not connected",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "sidebarHint": "Local integrator adapts KyberSwap Aggregator API v1 to Widget <code>SwapDataProvider</code>. See <code>src/integrator/</code>.",
+    "language": "Language"
+  }
+}

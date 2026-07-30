@@ -1,0 +1,10 @@
+{
+  "app": {
+    "title": "KyberSwap 示例",
+    "walletDisconnected": "未连接钱包",
+    "connect": "连接钱包",
+    "disconnect": "断开连接",
+    "sidebarHint": "本地 integrator 将 KyberSwap Aggregator API v1 适配为 Widget 的 <code>SwapDataProvider</code>。详见 <code>src/integrator/</code>。",
+    "language": "语言"
+  }
+}
